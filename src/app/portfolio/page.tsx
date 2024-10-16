@@ -16,7 +16,7 @@ export default function ModernYogaTeacherPortfolio() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg" alt="Yoga Logo" className="w-10 h-10 mr-2" />
-            <h1 className="text-2xl font-bold text-teal-800">Serene Yoga</h1>
+            <h1 className="text-2xl font-bold text-teal-800">RaaziYog</h1>
           </div>
           <nav className="hidden md:block">
             <ul className="flex space-x-6">
@@ -193,7 +193,7 @@ export default function ModernYogaTeacherPortfolio() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
               <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg" alt="Yoga Logo" className="w-12 h-12 mb-2" />
-              <p>&copy; {new Date().getFullYear()} Serene Yoga. All rights reserved.</p>
+              <p>&copy; {new Date().getFullYear()} RaaziYog. All rights reserved.</p>
             </div>
             <div className="flex space-x-6">
               {["Facebook", "Instagram", "Twitter"].map((social) => (
