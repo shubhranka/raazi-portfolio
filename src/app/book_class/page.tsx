@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CreditCard, Smartphone, Globe } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 type SessionType = 'group' | 'individual'
 type GroupType = 'weekday' | 'weekend'
@@ -23,14 +24,16 @@ interface TimeSlot {
 const generateTimeSlots = (start: number, end: number): TimeSlot[] => {
   const slots: TimeSlot[] = []
   for (let i = start; i < end; i++) {
-    slots.push({ time: `${i}:00`, available: true })
-    slots.push({ time: `${i}:30`, available: true })
+    const meridian = i < 12 ? "AM" : "PM"
+    const hour = i % 12 || 12
+    slots.push({ time: `${hour}:00 ${meridian} - ${hour+1}:00 ${meridian}`, available: true })
   }
   return slots
 }
 
 const weekdaySlots = generateTimeSlots(5, 8).concat(generateTimeSlots(16, 20))
 const weekendSlots = generateTimeSlots(6, 9)
+const groupWeekdaySlots = generateTimeSlots(7, 8).concat(generateTimeSlots(19, 20))
 
 export default function FinalBookSession() {
   const [sessionType, setSessionType] = useState<SessionType>('group')
@@ -39,6 +42,7 @@ export default function FinalBookSession() {
   const [selectedDays, setSelectedDays] = useState<string[]>([])
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi')
+  const [paymentStarted, setPaymentStarted] = useState(false)
   const [upiId, setUpiId] = useState('')
 
   const handleDaySelection = (day: string) => {
@@ -63,6 +67,24 @@ export default function FinalBookSession() {
     setSelectedTime(time)
   }
 
+  const getPriceObject = () => {
+    if (sessionType === 'group') {
+      return groupType === 'weekday' 
+        ? { price: 1500, sessions: 20, sessionsPerWeek: 5 } 
+        : { price: 600, sessions: 8, sessionsPerWeek: 2 }
+    } else {
+      switch (individualPlan) {
+        case '8':
+          return { price: 3500, sessions: 8, sessionsPerWeek: 2 }
+        case '16':
+          return { price: 5200, sessions: 16, sessionsPerWeek: 4 }
+        case '20':
+          return { price: 7000, sessions: 20, sessionsPerWeek: 5 }
+        case 'weekend':
+          return { price: 4000, sessions: 8, sessionsPerWeek: 2 }
+      }
+    }
+  }
   const renderPricing = () => {
     if (sessionType === 'group') {
       return groupType === 'weekday' 
@@ -98,10 +120,24 @@ export default function FinalBookSession() {
             <CardDescription className="text-center text-white/80">Find your inner peace with us</CardDescription>
           </CardHeader>
           <CardContent className="pt-6 space-y-8">
-            <Tabs defaultValue="group" onValueChange={(value) => setSessionType(value as SessionType)}>
+            {/* Take Input for First Name Last Name and phone number */}
+            <div>
+              <Label htmlFor="first-name" className="text-gray-700">First Name</Label>
+              <Input id="first-name" placeholder="Enter your first name" className="mt-1 bg-white" />
+            </div>
+            <div>
+              <Label htmlFor="last-name" className="text-gray-700">Last Name</Label>
+              <Input id="last-name" placeholder="Enter your last name" className="mt-1 bg-white" />
+            </div>
+            <div>
+              <Label htmlFor="phone" className="text-gray-700">Phone Number</Label>
+              <Input id="phone" placeholder="Enter your phone number" className="mt-1 bg-white" />
+            </div>
+            {/* Take Input for Email */}
+            <Tabs defaultValue="group" onValueChange={(value:any) => setSessionType(value as SessionType)}>
               <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="group">Group</TabsTrigger>
-                <TabsTrigger value="individual">Individual</TabsTrigger>
+                <TabsTrigger disabled={paymentStarted} value="group">Group</TabsTrigger>
+                <TabsTrigger disabled={paymentStarted} value="individual">Individual</TabsTrigger>
               </TabsList>
               <TabsContent value="group">
                 <div className="space-y-4">
@@ -112,6 +148,7 @@ export default function FinalBookSession() {
                         variant={groupType === 'weekday' ? 'default' : 'outline'}
                         onClick={() => setGroupType('weekday')}
                         className="w-full"
+                        disabled={paymentStarted}
                       >
                         Weekday
                       </Button>
@@ -119,6 +156,7 @@ export default function FinalBookSession() {
                         variant={groupType === 'weekend' ? 'default' : 'outline'}
                         onClick={() => setGroupType('weekend')}
                         className="w-full"
+                        disabled={paymentStarted}
                       >
                         Weekend
                       </Button>
@@ -130,7 +168,7 @@ export default function FinalBookSession() {
                       {daysOfWeek.map((day) => (
                         <Button
                           key={day}
-                          variant="outline"
+                          variant={sessionType === 'group' ? groupType === 'weekday' ? !['Saturday', 'Sunday'].includes(day) ? "default" : "outline" : ['Saturday', 'Sunday'].includes(day) ? "default" : "outline" : selectedDays.includes(day) ? "default" : "outline"}
                           onClick={() => handleDaySelection(day)}
                           className={`w-full text-xs py-1 ${
                             (groupType === 'weekday' && ['Saturday', 'Sunday'].includes(day)) ||
@@ -140,7 +178,8 @@ export default function FinalBookSession() {
                           }`}
                           disabled={
                             (groupType === 'weekday' && ['Saturday', 'Sunday'].includes(day)) ||
-                            (groupType === 'weekend' && !['Saturday', 'Sunday'].includes(day))
+                            (groupType === 'weekend' && !['Saturday', 'Sunday'].includes(day)) ||
+                            (paymentStarted)
                           }
                         >
                           {day.slice(0, 3)}
@@ -152,16 +191,27 @@ export default function FinalBookSession() {
                     <Label className="text-gray-700 mb-2 block">Time Slot</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {groupType === 'weekday' ? (
-                        <Button variant="outline" disabled className="w-full text-xs py-1">
-                          7:00 AM
-                        </Button>
+                        // <Button variant="default" disabled className="w-full text-xs py-1">
+                        //   7:00 AM - 8:00 AM
+                        // </Button>
+                        groupWeekdaySlots.map((slot) => (
+                          <Button
+                            key={slot.time}
+                            variant={selectedTime === slot.time ? "default" : "outline"}
+                            onClick={() => handleTimeSelection(slot.time)}
+                            disabled={!isTimeSlotAvailable(slot.time) || paymentStarted}
+                            className="w-full text-xs py-1"
+                          >
+                            {slot.time}
+                          </Button>
+                        ))
                       ) : (
                         weekendSlots.map((slot) => (
                           <Button
                             key={slot.time}
                             variant={selectedTime === slot.time ? "default" : "outline"}
                             onClick={() => handleTimeSelection(slot.time)}
-                            disabled={!isTimeSlotAvailable(slot.time)}
+                            disabled={!isTimeSlotAvailable(slot.time) || paymentStarted}
                             className="w-full text-xs py-1"
                           >
                             {slot.time}
@@ -176,7 +226,7 @@ export default function FinalBookSession() {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="individual-plan" className="text-gray-700 mb-2 block">Select Your Plan</Label>
-                    <Select onValueChange={(value) => setIndividualPlan(value as IndividualPlan)}>
+                    <Select onValueChange={(value:any) => setIndividualPlan(value as IndividualPlan)}>
                       <SelectTrigger id="individual-plan">
                         <SelectValue placeholder="Select a plan" />
                       </SelectTrigger>
@@ -235,9 +285,22 @@ export default function FinalBookSession() {
             <div className="border-t pt-6 space-y-4">
               <div>
                 <Label className="text-gray-700 text-lg font-semibold">Pricing</Label>
-                <p className="text-xl font-bold text-teal-600 mt-1">{renderPricing()}</p>
+                <p className="text-xl font-bold text-teal-600 mt-1">Rs {getPriceObject().price} /- </p>
+                <p className="text-l font-bold text-teal-600">{getPriceObject().sessions} sessions/month - {getPriceObject().sessionsPerWeek} sessions/week </p>
               </div>
               <div>
+                <Button 
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-white text-lg font-semibold" 
+                  onClick={() => setPaymentStarted(!paymentStarted)}
+                >
+                  {paymentStarted ? "Change Plan" : "Proceed to Payment"}
+                </Button>
+              </div>
+
+              <div className={cn(
+                "space-y-4",
+                paymentStarted ? "block" : "hidden"
+              )}>
                 <Label className="text-gray-700 text-lg font-semibold mb-2 block">Payment Options</Label>
                 <div className="space-y-2">
                   {[
@@ -256,7 +319,6 @@ export default function FinalBookSession() {
                     </Button>
                   ))}
                 </div>
-              </div>
               {paymentMethod === 'upi' && (
                 <div>
                   <Label htmlFor="upi-id" className="text-gray-700">UPI ID</Label>
@@ -269,16 +331,17 @@ export default function FinalBookSession() {
                   />
                 </div>
               )}
-            </div>
-          </CardContent>
-          <CardFooter className="bg-gray-50">
+              <div>
             <Button 
               className="w-full bg-teal-500 hover:bg-teal-600 text-white" 
               onClick={() => alert("Booking confirmed!")}
             >
               Confirm Booking
             </Button>
-          </CardFooter>
+          </div>  
+            </div>
+            </div>
+          </CardContent>
         </Card>
       </motion.div>
     </div>
