@@ -13,6 +13,6 @@ export async function handleCost(weekdays:number, weekends:number, sadhaks:numbe
         case 7: price = 6500; break
     }
     price += oneWeekendCharge * weekends + twoWeekendCharge * Math.floor(weekends / 2);
-    price = (Math.floor(sadhaks/2)+1)/(sadhaks+1) * price;
+    price = (Math.ceil(sadhaks/2)+1)/(sadhaks+1) * price;
     return price;
 }
