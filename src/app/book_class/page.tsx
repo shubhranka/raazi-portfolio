@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CreditCard, Smartphone, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { handleCost } from "../actions"
 
 type SessionType = 'group' | 'individual'
 type GroupType = 'weekday' | 'weekend'
@@ -44,17 +45,42 @@ export default function FinalBookSession() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi')
   const [paymentStarted, setPaymentStarted] = useState(false)
   const [upiId, setUpiId] = useState('')
+  const [totalSelectedWeekdays, setTotalSelectedWeekdays] = useState(0)
+  const [totalSelectedWeekends, setTotalSelectedWeekends] = useState(0)
+  const [price, setPrice] = useState(0)
+  const [sadhaks,setSadhaks] = useState(1)
+  const sessions = totalSelectedWeekdays + totalSelectedWeekends
+
+  const handleSetPrice = async () => {
+    setPrice(await handleCost(totalSelectedWeekdays, totalSelectedWeekends, sadhaks))
+  }
+
+  useEffect(() => {
+    handleSetPrice()
+  },[totalSelectedWeekdays, totalSelectedWeekends, sadhaks])
+
 
   const handleDaySelection = (day: string) => {
-    if (selectedDays.includes(day)) {
-      setSelectedDays(selectedDays.filter(d => d !== day))
-    } else {
-      if (individualPlan === '8' && selectedDays.length < 2) {
-        setSelectedDays([...selectedDays, day])
-      } else if (individualPlan === '16' && selectedDays.length < 4) {
-        setSelectedDays([...selectedDays, day])
-      } else if (individualPlan === '20') {
-        setSelectedDays(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])
+
+    if (['Saturday','Sunday'].includes(day)) {
+      if (selectedDays.includes(day)) {
+        setTotalSelectedWeekends(totalSelectedWeekends - 1)
+        setSelectedDays(selectedDays.filter(d => d !== day))
+      }else{
+        if(totalSelectedWeekends < 2){
+          setTotalSelectedWeekends(totalSelectedWeekends + 1)
+          setSelectedDays([...selectedDays, day])
+        }
+      }
+    }else{
+      if (selectedDays.includes(day)) {
+        setTotalSelectedWeekdays(totalSelectedWeekdays - 1)
+        setSelectedDays(selectedDays.filter(d => d !== day))
+      }else{
+        if(totalSelectedWeekdays < 5){
+          setTotalSelectedWeekdays(totalSelectedWeekdays + 1)
+          setSelectedDays([...selectedDays, day])
+        }
       }
     }
   }
@@ -224,7 +250,7 @@ export default function FinalBookSession() {
               </TabsContent>
               <TabsContent value="individual">
                 <div className="space-y-4">
-                  <div>
+                  {/* <div>
                     <Label htmlFor="individual-plan" className="text-gray-700 mb-2 block">Select Your Plan</Label>
                     <Select onValueChange={(value:any) => setIndividualPlan(value as IndividualPlan)}>
                       <SelectTrigger id="individual-plan">
@@ -237,7 +263,7 @@ export default function FinalBookSession() {
                         <SelectItem value="weekend">Weekend sessions</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
+                  </div> */}
                   <div>
                     <Label className="text-gray-700 mb-2 block">Select Days</Label>
                     <div className="grid grid-cols-7 gap-2">
@@ -246,16 +272,7 @@ export default function FinalBookSession() {
                           key={day}
                           variant={selectedDays.includes(day) ? "default" : "outline"}
                           onClick={() => handleDaySelection(day)}
-                          className={`w-full text-xs py-1 ${
-                            (individualPlan === 'weekend' && !['Saturday', 'Sunday'].includes(day)) ||
-                            (individualPlan !== 'weekend' && ['Saturday', 'Sunday'].includes(day))
-                              ? 'opacity-50 cursor-not-allowed'
-                              : ''
-                          }`}
-                          disabled={
-                            (individualPlan === 'weekend' && !['Saturday', 'Sunday'].includes(day)) ||
-                            (individualPlan !== 'weekend' && ['Saturday', 'Sunday'].includes(day))
-                          }
+                          className={`w-full text-xs py-1`}
                         >
                           {day.slice(0, 3)}
                         </Button>
@@ -283,11 +300,17 @@ export default function FinalBookSession() {
             </Tabs>
 
             <div className="border-t pt-6 space-y-4">
-              <div>
-                <Label className="text-gray-700 text-lg font-semibold">Pricing</Label>
-                <p className="text-xl font-bold text-teal-600 mt-1">Rs {getPriceObject().price} /- </p>
-                <p className="text-l font-bold text-teal-600">{getPriceObject().sessions} sessions/month - {getPriceObject().sessionsPerWeek} sessions/week </p>
-              </div>
+              {sessions>0 && sessionType === 'individual' && <div>
+                <Label className="text-gray-700 text-lg font-semibold">Fees</Label>
+                <p className="text-xl font-bold text-teal-600 mt-1">Rs {price} /- </p>
+                <p className="text-l font-bold text-teal-600">{sessions*4} sessions/month - {sessions} sessions/week </p>
+                { totalSelectedWeekends>0 && <p className="text-xs font-bold text-teal-600">*Weekend Charges </p>}
+              </div>}
+              {sessionType === 'group' && <div>
+                <Label className="text-gray-700 text-lg font-semibold">Fees</Label>
+                <p className="text-xl font-bold text-teal-600 mt-1"> Rs {groupType === 'weekday' ? 1500 : 600 } /- </p>
+                <p className="text-l font-bold text-teal-600">{groupType === 'weekday' ? 20 : 8 } sessions/month - {groupType === 'weekday' ? 5 : 2 } sessions/week </p>
+              </div>}
               <div>
                 <Button 
                   className="w-full bg-teal-500 hover:bg-teal-600 text-white text-lg font-semibold" 
