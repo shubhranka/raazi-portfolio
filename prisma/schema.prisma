@@ -14,10 +14,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Sadhak {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  firstname String   
+  lastname  String 
+  number    String
+  bookings  Booking[]
+  slots     Slot[]
+}
+
 model Booking {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  firstname String
-  lastname  String
-  number    String
+  sadhak    Sadhak    @relation(fields: [sadhakId], references: [id])
+  sadhakId  String    @db.ObjectId
   plan      String
+  slots     Slot[]
 }
+
+model Slot {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  day       Days
+  from      DateTime
+  to        DateTime
+  available Boolean
+  takenBy   Sadhak?  @relation(fields: [takenById], references: [id])
+  takenById String?  @db.ObjectId
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+  bookingId String?  @db.ObjectId
+}
+
+enum Days {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+

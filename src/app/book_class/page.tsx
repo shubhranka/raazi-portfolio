@@ -32,9 +32,9 @@ const generateTimeSlots = (start: number, end: number): TimeSlot[] => {
   return slots
 }
 
-const weekdaySlots = generateTimeSlots(5, 8).concat(generateTimeSlots(16, 20))
+const weekdaySlots = generateTimeSlots(5, 6).concat(generateTimeSlots(7,8)).concat(generateTimeSlots(16, 18)).concat(generateTimeSlots(19, 20))
 const weekendSlots = generateTimeSlots(6, 9)
-const groupWeekdaySlots = generateTimeSlots(6, 8).concat(generateTimeSlots(19, 20))
+const groupWeekdaySlots = generateTimeSlots(6, 7).concat(generateTimeSlots(18, 19))
 const groupWeekendSlots = generateTimeSlots(7, 9)
 
 export default function FinalBookSession() {
