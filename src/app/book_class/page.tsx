@@ -34,7 +34,8 @@ const generateTimeSlots = (start: number, end: number): TimeSlot[] => {
 
 const weekdaySlots = generateTimeSlots(5, 8).concat(generateTimeSlots(16, 20))
 const weekendSlots = generateTimeSlots(6, 9)
-const groupWeekdaySlots = generateTimeSlots(7, 8).concat(generateTimeSlots(19, 20))
+const groupWeekdaySlots = generateTimeSlots(6, 8).concat(generateTimeSlots(19, 20))
+const groupWeekendSlots = generateTimeSlots(7, 9)
 
 export default function FinalBookSession() {
   const [sessionType, setSessionType] = useState<SessionType>('group')
@@ -91,43 +92,6 @@ export default function FinalBookSession() {
 
   const handleTimeSelection = (time: string) => {
     setSelectedTime(time)
-  }
-
-  const getPriceObject = () => {
-    if (sessionType === 'group') {
-      return groupType === 'weekday' 
-        ? { price: 1500, sessions: 20, sessionsPerWeek: 5 } 
-        : { price: 600, sessions: 8, sessionsPerWeek: 2 }
-    } else {
-      switch (individualPlan) {
-        case '8':
-          return { price: 3500, sessions: 8, sessionsPerWeek: 2 }
-        case '16':
-          return { price: 5200, sessions: 16, sessionsPerWeek: 4 }
-        case '20':
-          return { price: 7000, sessions: 20, sessionsPerWeek: 5 }
-        case 'weekend':
-          return { price: 4000, sessions: 8, sessionsPerWeek: 2 }
-      }
-    }
-  }
-  const renderPricing = () => {
-    if (sessionType === 'group') {
-      return groupType === 'weekday' 
-        ? "Rs 1500/- for 20 sessions/month (5 sessions/week)" 
-        : "Rs 600/- for weekend sessions"
-    } else {
-      switch (individualPlan) {
-        case '8':
-          return "Rs 3500/- for 8 sessions/month (2 sessions/week)"
-        case '16':
-          return "Rs 5200/- for 16 sessions/month (4 sessions/week)"
-        case '20':
-          return "Rs 7000/- for 20 sessions/month (5 sessions/week)"
-        case 'weekend':
-          return "Rs 4000/- per month for weekend sessions"
-      }
-    }
   }
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -232,7 +196,7 @@ export default function FinalBookSession() {
                           </Button>
                         ))
                       ) : (
-                        weekendSlots.map((slot) => (
+                        groupWeekendSlots.map((slot) => (
                           <Button
                             key={slot.time}
                             variant={selectedTime === slot.time ? "default" : "outline"}
@@ -250,20 +214,6 @@ export default function FinalBookSession() {
               </TabsContent>
               <TabsContent value="individual">
                 <div className="space-y-4">
-                  {/* <div>
-                    <Label htmlFor="individual-plan" className="text-gray-700 mb-2 block">Select Your Plan</Label>
-                    <Select onValueChange={(value:any) => setIndividualPlan(value as IndividualPlan)}>
-                      <SelectTrigger id="individual-plan">
-                        <SelectValue placeholder="Select a plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="8">8 sessions/month (2/week)</SelectItem>
-                        <SelectItem value="16">16 sessions/month (4/week)</SelectItem>
-                        <SelectItem value="20">20 sessions/month (5/week)</SelectItem>
-                        <SelectItem value="weekend">Weekend sessions</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div> */}
                   <div>
                     <Label className="text-gray-700 mb-2 block">Select Days</Label>
                     <div className="grid grid-cols-7 gap-2">
