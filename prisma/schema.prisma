@@ -33,9 +33,10 @@ model Booking {
 
 model Slot {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  day       Days
-  from      DateTime
-  to        DateTime
+  day       Day
+  plan      Plan
+  from      Int
+  to        Int
   available Boolean
   takenBy   Sadhak?  @relation(fields: [takenById], references: [id])
   takenById String?  @db.ObjectId
@@ -43,7 +44,7 @@ model Slot {
   bookingId String?  @db.ObjectId
 }
 
-enum Days {
+enum Day {
   MONDAY
   TUESDAY
   WEDNESDAY
@@ -51,5 +52,11 @@ enum Days {
   FRIDAY
   SATURDAY
   SUNDAY
+  WEEKDAY
+  WEEKEND
 }
 
+enum Plan{
+  GROUP
+  PRIVATE
+}
