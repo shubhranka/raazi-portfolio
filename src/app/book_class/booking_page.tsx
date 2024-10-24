@@ -43,6 +43,7 @@ export default function FinalBookSession() {
   const sessions = totalSelectedWeekdays + totalSelectedWeekends
 
   const [privateSlots, setPrivateSlots] = useState<TimeSlot[]>([])
+  const [selectedPrivateSlots, setSelectedPrivateSlots] = useState<string[]>([])
 
 
   useEffect(() => {
@@ -97,8 +98,12 @@ export default function FinalBookSession() {
     return true // Simplified for this example
   }
 
-  const handleTimeSelection = (time: string) => {
-    setSelectedTime(time)
+  const handleTimeSelection = (slotId:string) => {
+    if (selectedPrivateSlots.includes(slotId)) {
+      setSelectedPrivateSlots(selectedPrivateSlots.filter((slot) => slot !== slotId))
+    } else {
+      setSelectedPrivateSlots([...selectedPrivateSlots, slotId])
+    }
   }
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']

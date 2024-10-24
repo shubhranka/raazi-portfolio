@@ -1,7 +1,8 @@
 import { Day, PrismaClient, Slot } from "@prisma/client";
 const prisma = new PrismaClient();
+
+
 export async function GET (
-    request: Request,
     {params}: {params: Promise<{
         day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
     }>}

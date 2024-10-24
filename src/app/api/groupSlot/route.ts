@@ -1,12 +1,6 @@
 export const dynamic = 'force-static'
 import { Day, Plan, PrismaClient, Slot } from "@prisma/client"
 
-interface TimeSlot {
-    time: string
-    available: boolean
-}
-
-
 
 const generateTimeSlots = (slots: Slot[]) => {
     const timeSlots = slots.map(slot => {
