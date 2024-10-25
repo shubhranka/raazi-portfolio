@@ -1,11 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { Booking, Plan, PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-
+  try {
   const { body } = await req.json();
 
   // Parse the incoming request body
@@ -20,8 +20,20 @@ export async function POST(req: Request) {
     }
   })
 
-  // Step 2: Compare the generated signature with the provided one
-  try {
+  await prisma.slot.updateMany({
+    where: {
+      bookingId: booking!.id,
+      plan: Plan.PRIVATE
+    },
+    data: {
+      available: false
+    }
+  })
+
+  // Create a gmeet link
+
+  // Send Gmeet links to email and whatsapp
+  
     if (paymentInfo.status === 'paid') {
       // Verification succeeded
       return NextResponse.json({ success: true, message: 'Payment verified successfully', amount: paymentInfo.amount_paid, bookingId:booking!.id }, { status: 200 });

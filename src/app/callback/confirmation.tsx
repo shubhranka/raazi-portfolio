@@ -9,8 +9,8 @@ interface ConfirmationProps {
 
 export function Confirmation({ bookingId, totalAmount }: ConfirmationProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex items-center justify-center">
+      <Card className="w-full max-w-md ring-0 border-0 shadow-none">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
             <CheckCircle2 className="h-10 w-10 text-green-600" />

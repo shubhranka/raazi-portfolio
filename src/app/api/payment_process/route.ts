@@ -54,7 +54,7 @@ async function getPaymentsLink(slots: TimeSlot[], name: string, email: string, p
         }
     })
     const reference_id = booking.id;
-    const linkResponse = await getPaymentLinkReponse(price, reference_id, name, phone);
+    const linkResponse = await getPaymentLinkReponse(price, reference_id, name, phone, email);
     await prisma.booking.update({
         where: {
             id: booking.id
@@ -67,15 +67,15 @@ async function getPaymentsLink(slots: TimeSlot[], name: string, email: string, p
 
 }
 
-const getPaymentLinkReponse = async (amount: number, reference_id: string, name: string, phone: string) => {
-    const data = makeData(amount, reference_id, name, phone, process.env.CALLBACK_URL || "");
+const getPaymentLinkReponse = async (amount: number, reference_id: string, name: string, phone: string, email: string) => {
+    const data = makeData(amount, reference_id, name, phone, email, process.env.CALLBACK_URL || "");
     const instance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID || "", key_secret: process.env.RAZORPAY_SECRET || "" });
 
     const response = await instance.paymentLink.create(data)
     return response;
 }
 
-const makeData = (amount: number, reference_id: string, name: string, phone: string, callback_url: string) => ({
+const makeData = (amount: number, reference_id: string, name: string, phone: string, email: string, callback_url: string) => ({
     "amount": amount,
     "currency": "INR",
     "accept_partial": false,
@@ -84,9 +84,7 @@ const makeData = (amount: number, reference_id: string, name: string, phone: str
     "customer": {
         "name": name,
         "contact": phone,
-    },
-    "notify": {
-        "sms": true,
+        "email": email,
     },
     "callback_url": callback_url,
     "callback_method": "get"

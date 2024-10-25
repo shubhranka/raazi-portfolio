@@ -4,6 +4,8 @@ import { Confirmation } from "./confirmation"
 import { PrismaClient } from "@prisma/client"
 import { Loader } from "./loader"
 import { useSearchParams } from "next/navigation"
+import { motion } from "framer-motion"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 const prisma = new PrismaClient()
 
 
@@ -47,5 +49,23 @@ export default function AfterPayment() {
   }
 
 
-  return <Confirmation bookingId={bookingId} totalAmount={totalAmount} />
+  return <div className="min-h-screen bg-gradient-to-br from-teal-50 via-teal-100 to-peach-100 py-12 px-4 sm:px-6 lg:px-8">
+  <motion.div
+    className="max-w-md mx-auto"
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5 }}
+  > 
+  <Card className="backdrop-blur-md bg-white/70 shadow-xl border-0 overflow-hidden">
+  <CardHeader className="bg-gradient-to-r from-teal-400 to-teal-600 text-white">
+    <CardTitle className="text-2xl font-bold text-center">Book Your Yoga Journey</CardTitle>
+    <CardDescription className="text-center text-white/80">Find your inner peace with us</CardDescription>
+  </CardHeader>
+  <CardContent className="pt-6 space-y-8 bg-white"> 
+    <Confirmation bookingId={bookingId} totalAmount={totalAmount+""} />
+  </CardContent>
+</Card>
+</motion.div>
+</div>
+
 }

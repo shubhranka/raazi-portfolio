@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { X } from "lucide-react"
-import { getPaymentsLink, handleCost } from "../actions"
+import { handleCost } from "../actions"
 import TimeSlot from "./time_slot"
 import { Day, Slot } from "@prisma/client"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -80,11 +80,19 @@ export default function FinalBookSession() {
       setemailError("Email is required")
       emailRef.current?.focus()
       return false
+    }else if (!email.includes('@') || !email.includes('.')){
+      setemailError("Invalid Email")
+      emailRef.current?.focus()
+      return false
     }else{
       setemailError('')
     }
     if(phone === ''){
       setPhoneError("Phone Number is required")
+      phoneRef.current?.focus()
+      return false
+    }else if (phone.length !== 10 || isNaN(Number(phone))){
+      setPhoneError("Invalid Phone Number")
       phoneRef.current?.focus()
       return false
     }else{
@@ -111,7 +119,7 @@ export default function FinalBookSession() {
     const {link} = await response.json()
 
     // Visit the link
-    window.open(link, '_blank');
+    window.open(link,"_self");
 
   }
 
@@ -279,6 +287,7 @@ export default function FinalBookSession() {
                   <div>
                     <Label className="text-gray-700 mb-2 block">Time Slot</Label>
                     <div className="grid grid-cols-3 gap-2">
+                      {groupWeekdaySlots.length === 0 && <div className="h-12" ><Spinner /></div>}
                       {groupType === 'weekday' ? (
                         groupWeekdaySlots.map((slot) => (
                           <Button
@@ -342,7 +351,7 @@ export default function FinalBookSession() {
                           {!privateSlotsLoading && privateSlots.map((slot) => (
                             <Button
                               key={slot.id}
-                              variant={selectedSlots.includes(slot) ? "default" : "outline"}
+                              variant={selectedSlots.find(cslot => cslot.id === slot.id) ? "default" : "outline"}
                               onClick={() => handleTimeSelection(slot)}
                               disabled={!isTimeSlotAvailable(slot.id,privateSlots)}
                               className="w-full text-xs py-1"

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Heart, Star, Feather, Sun, Moon, Wind, Menu } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function ModernYogaTeacherPortfolio() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -90,8 +91,8 @@ export default function ModernYogaTeacherPortfolio() {
             <div className="flex flex-col md:flex-row items-center gap-12">
               <div className="md:w-1/2">
                 <div className="relative">
-                  <img
-                    src="/placeholder.svg?height=500&width=500"
+                  <Image
+                    src="/cropped.jpg"
                     alt="Yoga teacher in a pose"
                     className="rounded-full mx-auto shadow-2xl"
                     width={500}
