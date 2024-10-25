@@ -331,7 +331,9 @@ export default function FinalBookSession() {
                           {/* <div className="grid grid-cols-7 gap-2"> */}
                             <Button
                               key={day}
-                              variant={selectedSlots.find(slot => slot.day === Day[day.toLocaleUpperCase()]) ? "default" : "outline"}
+                              variant={selectedSlots.find(slot => slot.day === Day[day.toLocaleUpperCase() as 
+                                keyof typeof Day
+                              ]) ? "default" : "outline"}
                               onClick={() => handleDaySelection(day)}
                               className={`w-full text-xs py-1`}
                             >
