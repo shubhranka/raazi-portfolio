@@ -6,7 +6,10 @@ const generateTimeSlots = (slots: Slot[]) => {
     const timeSlots = slots.map(slot => {
         const meridian = slot.from < 12 ? "AM" : "PM"
         const hour = slot.from % 12 || 12
-        return { time: `${hour}:00 ${meridian} - ${hour + 1}:00 ${meridian}`, available: true }
+        return {
+            ...slot,
+            time: `${hour}:00 ${meridian} - ${hour + 1}:00 ${meridian}`,
+        }
     })
 
     return timeSlots

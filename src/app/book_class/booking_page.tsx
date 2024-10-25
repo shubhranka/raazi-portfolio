@@ -1,26 +1,26 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CreditCard, Smartphone, Globe } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { generateTimeSlots, handleCost } from "../actions"
+import { X } from "lucide-react"
+import { getPaymentsLink, handleCost } from "../actions"
 import TimeSlot from "./time_slot"
+import { Day, Slot } from "@prisma/client"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Spinner } from "@/components/ui/spinner"
 
 type SessionType = 'group' | 'private'
 type GroupType = 'weekday' | 'weekend'
 type PrivatePlan = '8' | '16' | '20' | 'weekend'
 type PaymentMethod = 'upi' | 'card' | 'netbanking'
 
-interface TimeSlot {
+interface TimeSlot extends Slot {
   time: string
-  available: boolean
 }
 
 
@@ -41,9 +41,22 @@ export default function FinalBookSession() {
   const [groupWeekdaySlots, setGroupWeekdaySlots] = useState<TimeSlot[]>([])
   const [groupWeekendSlots, setGroupWeekendSlots] = useState<TimeSlot[]>([])
   const sessions = totalSelectedWeekdays + totalSelectedWeekends
+  const [isTimeDialogOpen, setIsTimeDialogOpen] = useState(false)
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
+  const [name, setname] = useState('')
+  const [email, setemail] = useState('')
+  const [phone, setPhone] = useState('')
+  const nameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
+  const [nameError, setnameError] = useState('')
+  const [emailError, setemailError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+
 
   const [privateSlots, setPrivateSlots] = useState<TimeSlot[]>([])
-  const [selectedPrivateSlots, setSelectedPrivateSlots] = useState<string[]>([])
+  const [selectedSlots, setSelectedSlots] = useState<TimeSlot[]>([])
+  const [privateSlotsLoading, setPrivateSlotsLoading] = useState(false)
 
 
   useEffect(() => {
@@ -51,11 +64,57 @@ export default function FinalBookSession() {
     setGroupSlots()
   }, [totalSelectedWeekdays, totalSelectedWeekends, sadhaks])
 
-  const weekdaySlots = generateTimeSlots(5, 6).concat(generateTimeSlots(7, 8)).concat(generateTimeSlots(16, 18)).concat(generateTimeSlots(19, 20))
-  const weekendSlots = generateTimeSlots(6, 9)
   const handleSetPrice = async () => {
     setPrice(await handleCost(totalSelectedWeekdays, totalSelectedWeekends, sadhaks))
   }
+
+  const validateInputs = async () => {
+    if(name === ''){
+      setnameError("Name is required")
+      nameRef.current?.focus()
+      return false
+    }else{
+      setnameError('')
+    }
+    if(email === ''){
+      setemailError("Email is required")
+      emailRef.current?.focus()
+      return false
+    }else{
+      setemailError('')
+    }
+    if(phone === ''){
+      setPhoneError("Phone Number is required")
+      phoneRef.current?.focus()
+      return false
+    }else{
+      setPhoneError('')
+    }
+    if(selectedSlots.length === 0){
+      alert("Please select a time slot")
+      return false
+    }
+
+    const response = await fetch('/api/payment_process', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        slots: selectedSlots,
+        name,
+        email,
+        phone
+      })
+    })
+
+    const {link} = await response.json()
+
+    // Visit the link
+    window.open(link, '_blank');
+
+  }
+
 
   const setGroupSlots = async () => {
     const res = await fetch('/api/groupSlot')
@@ -64,9 +123,12 @@ export default function FinalBookSession() {
     setGroupWeekendSlots(data.weekendSlots)
   }
 
-
   const handleDaySelection = async (day: string) => {
 
+    setPrivateSlotsLoading(true)
+
+    setSelectedDay(day)
+    setIsTimeDialogOpen(true)
     if (['Saturday', 'Sunday'].includes(day)) {
       if (selectedDays.includes(day)) {
         setTotalSelectedWeekends(totalSelectedWeekends - 1)
@@ -89,21 +151,34 @@ export default function FinalBookSession() {
       }
     }
 
-    const response = await fetch(`/api/privateSlot/${day.toUpperCase()}`)
+    const response = await fetch(`/api/private_slot/${day.toUpperCase()}`)
     const privateSlots = await response.json();
     setPrivateSlots(privateSlots)
+    setPrivateSlotsLoading(false)
   }
 
-  const isTimeSlotAvailable = (time: string) => {
-    return true // Simplified for this example
+  const isTimeSlotAvailable = (id: string, slots: TimeSlot[]) => {
+    return slots.find((slot) => slot.id === id)?.available
   }
 
-  const handleTimeSelection = (slotId:string) => {
-    if (selectedPrivateSlots.includes(slotId)) {
-      setSelectedPrivateSlots(selectedPrivateSlots.filter((slot) => slot !== slotId))
-    } else {
-      setSelectedPrivateSlots([...selectedPrivateSlots, slotId])
+  const handleDelete = (slot: TimeSlot) => {
+    setSelectedSlots(selectedSlots.filter((cslot) => cslot.id !== slot.id))
+  }
+
+  const handleTimeSelection = (slot: TimeSlot) => {
+
+
+    if (selectedSlots.findIndex(cslot => cslot.id === slot.id) !== -1) {
+      setSelectedSlots(selectedSlots.filter((cslot) => cslot.id !== slot.id))
+      return
     }
+    const newSelectedSlots = selectedSlots.filter((cslot) => !(cslot.day == slot.day && cslot.plan == slot.plan))
+
+    newSelectedSlots.push(slot)
+    // console.log(newSelectedSlots)
+    setSelectedSlots(newSelectedSlots)
+    setSelectedDay(null)
+    setIsTimeDialogOpen(false)
   }
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -124,19 +199,31 @@ export default function FinalBookSession() {
           <CardContent className="pt-6 space-y-8">
             {/* Take Input for First Name Last Name and phone number */}
             <div>
-              <Label htmlFor="first-name" className="text-gray-700">First Name</Label>
-              <Input id="first-name" placeholder="Enter your first name" className="mt-1 bg-white" />
+              <Label htmlFor="first-name" className="text-gray-700">Name</Label>
+              <Input required ref={nameRef} id="first-name" placeholder="Enter your name" className="mt-1 bg-white"
+                value={name}
+                onChange={(e) => setname(e.target.value)} 
+               />
+               {nameError && <p className="text-red-500 text-xs mt-1">{nameError}</p>}
             </div>
             <div>
-              <Label htmlFor="last-name" className="text-gray-700">Last Name</Label>
-              <Input id="last-name" placeholder="Enter your last name" className="mt-1 bg-white" />
+              <Label htmlFor="last-name" className="text-gray-700">Email</Label>
+              <Input required type="email" ref={emailRef} id="last-name" placeholder="Enter your email" className="mt-1 bg-white" 
+                value={email}
+                onChange={(e) => setemail(e.target.value)}
+              />
+              {emailError && <p className="text-red-500 text-xs">{emailError}</p>}
             </div>
             <div>
               <Label htmlFor="phone" className="text-gray-700">Phone Number</Label>
-              <Input id="phone" placeholder="Enter your phone number" className="mt-1 bg-white" />
+              <Input required type="phone" ref={phoneRef} id="phone" placeholder="Enter your phone number" className="mt-1 bg-white" 
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              {phoneError && <p className="text-red-500 text-xs">{phoneError}</p>}
             </div>
             {/* Take Input for Email */}
-            <Tabs defaultValue="group" onValueChange={(value: any) => setSessionType(value as SessionType)}>
+            <Tabs defaultValue="group" onValueChange={(value: any) => { setSelectedSlots([]);setSessionType(value as SessionType)}}>
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger disabled={paymentStarted} value="group">Group</TabsTrigger>
                 <TabsTrigger disabled={paymentStarted} value="private">Private</TabsTrigger>
@@ -148,7 +235,7 @@ export default function FinalBookSession() {
                     <div className="grid grid-cols-2 gap-4">
                       <Button
                         variant={groupType === 'weekday' ? 'default' : 'outline'}
-                        onClick={() => setGroupType('weekday')}
+                        onClick={() => { setSelectedSlots([]); setGroupType('weekday')}}
                         className="w-full"
                         disabled={paymentStarted}
                       >
@@ -156,7 +243,7 @@ export default function FinalBookSession() {
                       </Button>
                       <Button
                         variant={groupType === 'weekend' ? 'default' : 'outline'}
-                        onClick={() => setGroupType('weekend')}
+                        onClick={() => { setSelectedSlots([]); setGroupType('weekend')}}
                         className="w-full"
                         disabled={paymentStarted}
                       >
@@ -195,10 +282,10 @@ export default function FinalBookSession() {
                       {groupType === 'weekday' ? (
                         groupWeekdaySlots.map((slot) => (
                           <Button
-                            key={slot.time}
-                            variant={selectedTime === slot.time ? "default" : "outline"}
-                            onClick={() => handleTimeSelection(slot.time)}
-                            disabled={!isTimeSlotAvailable(slot.time) || paymentStarted}
+                            key={slot.id}
+                            variant={selectedSlots.find(cslot => cslot.id === slot.id) ? "default" : "outline"}
+                            onClick={() => handleTimeSelection(slot)}
+                            disabled={!isTimeSlotAvailable(slot.id,groupWeekdaySlots) || paymentStarted}
                             className="w-full text-xs py-1"
                           >
                             {slot.time}
@@ -207,10 +294,10 @@ export default function FinalBookSession() {
                       ) : (
                         groupWeekendSlots.map((slot) => (
                           <Button
-                            key={slot.time}
-                            variant={selectedTime === slot.time ? "default" : "outline"}
-                            onClick={() => handleTimeSelection(slot.time)}
-                            disabled={!isTimeSlotAvailable(slot.time) || paymentStarted}
+                            key={slot.id}
+                            variant={selectedSlots.find(cslot => cslot.id === slot.id) ? "default" : "outline"}
+                            onClick={() => handleTimeSelection(slot)}
+                            disabled={!isTimeSlotAvailable(slot.id,groupWeekendSlots) || paymentStarted}
                             className="w-full text-xs py-1"
                           >
                             {slot.time}
@@ -223,37 +310,69 @@ export default function FinalBookSession() {
               </TabsContent>
               <TabsContent value="private">
                 <div className="space-y-4">
-                  <div>
-                    <Label className="text-gray-700 mb-2 block">Select Days</Label>
-                    <div className="grid grid-cols-7 gap-2">
-                      {daysOfWeek.map((day) => (
-                        <Button
-                          key={day}
-                          variant={selectedDays.includes(day) ? "default" : "outline"}
-                          onClick={() => handleDaySelection(day)}
-                          className={`w-full text-xs py-1`}
-                        >
-                          {day.slice(0, 3)}
-                        </Button>
+                          <Label className="text-gray-700 mb-2 block">Select Days</Label>
+                          <div className="grid grid-cols-7 gap-2">
+                  {daysOfWeek.map((day) => (
+                    <Dialog key={day} open={isTimeDialogOpen && selectedDay === day} onOpenChange={(open) => {
+                      if (!open) {
+                        setIsTimeDialogOpen(false)
+                        setSelectedDay(null)
+                      }}}>
+                      <DialogTrigger asChild >
+                          {/* <div className="grid grid-cols-7 gap-2"> */}
+                            <Button
+                              key={day}
+                              variant={selectedSlots.find(slot => slot.day === Day[day.toLocaleUpperCase()]) ? "default" : "outline"}
+                              onClick={() => handleDaySelection(day)}
+                              className={`w-full text-xs py-1`}
+                            >
+                              {day.slice(0, 3)}
+                            </Button>
+                          {/* </div> */}
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Select Time for {day}</DialogTitle>
+                          <DialogDescription>
+                            Choose a time slot for your yoga session on {day}.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid grid-cols-3 gap-2 max-h-[150px] overflow-y-auto">
+                          {privateSlotsLoading && <div className="h-12" ><Spinner /></div>}
+                          {!privateSlotsLoading && privateSlots.map((slot) => (
+                            <Button
+                              key={slot.id}
+                              variant={selectedSlots.includes(slot) ? "default" : "outline"}
+                              onClick={() => handleTimeSelection(slot)}
+                              disabled={!isTimeSlotAvailable(slot.id,privateSlots)}
+                              className="w-full text-xs py-1"
+                            >
+                              {slot.time}
+                            </Button>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  ))}
+                  </div>
+                  { selectedSlots.length > 0 && <div>
+                    <Label className="custom-label">Selected Days and Times</Label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedSlots.map((s) => (
+                        <div key={s.id} className="bg-white text-accent-foreground rounded-full px-3 py-1 text-xs flex items-center">
+                          {s.day.slice(0,3)} {s.time}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-2 h-4 w-4 p-0"
+                            onClick={() => handleDelete(s)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                  <div>
-                    <Label className="text-gray-700 mb-2 block">Select Time Slot</Label>
-                    <div className="grid grid-cols-3 gap-2 max-h-[150px] overflow-y-auto">
-                      {privateSlots.map((slot) => (
-                        <Button
-                          key={slot.time}
-                          variant={selectedTime === slot.time ? "default" : "outline"}
-                          onClick={() => handleTimeSelection(slot.time)}
-                          disabled={!isTimeSlotAvailable(slot.time)}
-                          className="w-full text-xs py-1"
-                        >
-                          {slot.time}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
+                  </div>}
                 </div>
               </TabsContent>
             </Tabs>
@@ -273,59 +392,15 @@ export default function FinalBookSession() {
               <div>
                 <Button
                   className="w-full bg-teal-500 hover:bg-teal-600 text-white text-lg font-semibold"
-                  onClick={() => setPaymentStarted(!paymentStarted)}
+                  onClick={validateInputs}
                 >
-                  {paymentStarted ? "Change Plan" : "Proceed to Payment"}
+                  {paymentStarted ? "Change Plan" : "Confirm Details"}
                 </Button>
-              </div>
-
-              <div className={cn(
-                "space-y-4",
-                paymentStarted ? "block" : "hidden"
-              )}>
-                <Label className="text-gray-700 text-lg font-semibold mb-2 block">Payment Options</Label>
-                <div className="space-y-2">
-                  {[
-                    { value: 'upi', label: 'UPI Payment', icon: Smartphone },
-                    { value: 'card', label: 'Credit/Debit Card', icon: CreditCard },
-                    { value: 'netbanking', label: 'Net Banking', icon: Globe }
-                  ].map((option) => (
-                    <Button
-                      key={option.value}
-                      variant={paymentMethod === option.value ? "default" : "outline"}
-                      className="w-full justify-start"
-                      onClick={() => setPaymentMethod(option.value as PaymentMethod)}
-                    >
-                      <option.icon className="mr-2 h-4 w-4" />
-                      {option.label}
-                    </Button>
-                  ))}
-                </div>
-                {paymentMethod === 'upi' && (
-                  <div>
-                    <Label htmlFor="upi-id" className="text-gray-700">UPI ID</Label>
-                    <Input
-                      id="upi-id"
-                      placeholder="Enter your UPI ID"
-                      className="mt-1"
-                      value={upiId}
-                      onChange={(e) => setUpiId(e.target.value)}
-                    />
-                  </div>
-                )}
-                <div>
-                  <Button
-                    className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                    onClick={() => alert("Booking confirmed!")}
-                  >
-                    Confirm Booking
-                  </Button>
-                </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
-    </div>
+    </div >
   )
 }

@@ -16,19 +16,22 @@ datasource db {
 
 model Sadhak {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  firstname String   
-  lastname  String 
+  name      String    
   number    String
+  email     String
   bookings  Booking[]
   slots     Slot[]
 }
 
 model Booking {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  sadhak    Sadhak    @relation(fields: [sadhakId], references: [id])
-  sadhakId  String    @db.ObjectId
-  plan      String
-  slots     Slot[]
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  sadhak        Sadhak    @relation(fields: [sadhakId], references: [id])
+  sadhakId      String    @db.ObjectId
+  plan          Plan
+  slots         Slot[]
+  fees          Float
+  status        String
+  payment_link  String
 }
 
 model Slot {
