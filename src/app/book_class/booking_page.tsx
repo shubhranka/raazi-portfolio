@@ -286,8 +286,8 @@ export default function FinalBookSession() {
 
                   <div>
                     <Label className="text-gray-700 mb-2 block">Time Slot</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {groupWeekdaySlots.length === 0 && <div className="h-12" ><Spinner /></div>}
+                      {/* {groupWeekdaySlots.length !== 0 && <div className="flex h-12 justify-center align-center" ><Spinner /></div>} */}
+                    <div className="grid grid-cols-2 gap-2">
                       {groupType === 'weekday' ? (
                         groupWeekdaySlots.map((slot) => (
                           <Button
@@ -348,8 +348,8 @@ export default function FinalBookSession() {
                             Choose a time slot for your yoga session on {day}.
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="grid grid-cols-3 gap-2 max-h-[150px] overflow-y-auto">
                           {privateSlotsLoading && <div className="h-12" ><Spinner /></div>}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[150px] overflow-y-auto">
                           {!privateSlotsLoading && privateSlots.map((slot) => (
                             <Button
                               key={slot.id}

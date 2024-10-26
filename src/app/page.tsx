@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Heart, Star, Feather, Sun, Moon, Wind, Menu } from "lucide-react"
+import { Heart, Star, Feather, Sun, Moon, Wind, Menu, Facebook, Instagram, Twitter, Phone, Mail } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -109,14 +109,20 @@ export default function ModernYogaTeacherPortfolio() {
               <div className="md:w-1/2">
                 <h2 className="text-4xl font-bold text-teal-900 mb-6">About Me</h2>
                 <p className="text-teal-700 mb-6 text-lg">
-                  Hello, I'm Sarah, a certified yoga instructor with over 10 years of experience. My journey into yoga began as a way to find balance in my hectic life, and it has since become my passion and calling.
+                Welcome to our yoga community! Led by Ms. Abhishita Varma, an internationally certified Yoga Instructor and esteemed National Yoga Player, our mission is to share the transformative power of yoga with everyone. With a deep expertise in Ashtanga Yoga and a commitment to wellness, Abhishita has dedicated herself to helping individuals achieve their fitness and wellness goals.
                 </p>
                 <p className="text-teal-700 mb-8 text-lg">
-                  I specialize in Hatha and Vinyasa yoga, and I'm dedicated to helping my students find peace, strength, and flexibility both on and off the mat.
+                Abhishita holds multiple certifications, including a 500-hour Yoga Teacher Training Certificate from Yoga Alliance and recognition as a Wellness Instructor by YCB-AYUSH. Her accolades include the prestigious Yoga Shiromani award, highlighting her commitment and contributions to the field.
                 </p>
-                <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-teal-100 transition-colors">
+                <p className="text-teal-700 mb-8 text-lg">
+                Our classes, offered from Monday to Sunday, encompass a holistic approach to yoga. Participants can expect a blend of asanas, kriyas, pranayama, relaxation techniques, and valuable health and diet tips. Whether you're a beginner or an experienced practitioner, our sessions are designed to nurture both body and mind, ensuring a safe and enriching experience.
+                </p>
+                <p className="text-teal-700 mb-8 text-lg">
+                Join us on this journey towards wellness, and discover the benefits of yoga in a supportive and inspiring environment.
+                </p>
+                {/* <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-teal-100 transition-colors">
                   Learn More
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>
@@ -193,17 +199,35 @@ export default function ModernYogaTeacherPortfolio() {
 
       <footer className="bg-teal-900 text-white py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-6 md:mb-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center md:items-start">
               <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg" alt="Yoga Logo" className="w-12 h-12 mb-2" />
               <p>&copy; {new Date().getFullYear()} RaaziYog. All rights reserved.</p>
             </div>
-            <div className="flex space-x-6">
-              {["Facebook", "Instagram", "Twitter"].map((social) => (
-                <a key={social} href="#" className="hover:text-teal-200 transition-colors">
-                  {social}
+            <div className="flex flex-col items-center md:items-start">
+              <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
+              <div className="flex space-x-4">
+                <a href="#" className="hover:text-teal-200 transition-colors">
+                  <Facebook className="w-6 h-6" />
                 </a>
-              ))}
+                <a href="#" className="hover:text-teal-200 transition-colors">
+                  <Instagram className="w-6 h-6" />
+                </a>
+                <a href="#" className="hover:text-teal-200 transition-colors">
+                  <Twitter className="w-6 h-6" />
+                </a>
+              </div>
+            </div>
+            <div className="flex flex-col items-center md:items-start">
+              <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+              <div className="flex items-center mb-2">
+                <Phone className="w-5 h-5 mr-2" />
+                <span>+91 93993 28872</span>
+              </div>
+              <div className="flex items-center">
+                <Mail className="w-5 h-5 mr-2" />
+                <span>founder@raaziyog.com</span>
+              </div>
             </div>
           </div>
         </div>
