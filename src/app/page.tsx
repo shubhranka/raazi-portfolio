@@ -17,7 +17,7 @@ export default function ModernYogaTeacherPortfolio() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <img src="https://hebbkx1anhila5yf.public.blob.c:\Users\Dell\Downloads\raazi_logo.icovercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg" alt="Yoga Logo" className="w-10 h-10 mr-2" />
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg" alt="Yoga Logo" className="w-10 h-10 mr-2" />
             <h1 className="text-2xl font-bold text-teal-800">RaaziYog</h1>
           </div>
           <nav className="hidden md:block">
@@ -208,7 +208,7 @@ export default function ModernYogaTeacherPortfolio() {
               });
               
               // Refresh the page after submission
-              window.location.reload();
+              // window.location.reload();
             }}>
               <div className="mb-6">
                 <label htmlFor="name" className="block text-sm font-medium text-teal-700 mb-2">Name</label>
