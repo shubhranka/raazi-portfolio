@@ -180,7 +180,7 @@ export default function ModernYogaTeacherPortfolio() {
             <h2 className="text-4xl font-bold text-teal-900 mb-6 text-center">Share Your Experience</h2>
             <p className="text-xl text-teal-700 mb-8 text-center">We value your feedback. Your testimonial can inspire others on their yoga journey.</p>
             <div className="flex justify-center">
-              <Link href="/submit-testimonial">
+              <Link href="https://b0rzfxplaus.typeform.com/to/OEVZWCzl" target="_blank" >
                 <Button size="lg" className="bg-teal-600 hover:bg-teal-700 text-white transition-colors">
                   Submit Your Testimonial
                 </Button>
@@ -192,18 +192,35 @@ export default function ModernYogaTeacherPortfolio() {
         <section id="contact" className="py-20">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-bold text-teal-900 mb-12 text-center">Get in Touch</h2>
-            <form className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-xl">
+            <form className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-xl" method="post" onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData((e as any).target);
+              const name = formData.get("name");
+              const email = formData.get("email");
+              const message = formData.get("message");
+
+              console.log({ name, email, message });
+    
+              // Send the form data using fetch
+              await fetch("/api/connect", {
+                method: "POST",
+                body: JSON.stringify({ name, email, message }),
+              });
+              
+              // Refresh the page after submission
+              window.location.reload();
+            }}>
               <div className="mb-6">
                 <label htmlFor="name" className="block text-sm font-medium text-teal-700 mb-2">Name</label>
-                <Input id="name" placeholder="Your name" className="border-teal-300 focus:border-teal-500 focus:ring-teal-500" />
+                <Input id="name" required name="name" placeholder="Your name" className="border-teal-300 focus:border-teal-500 focus:ring-teal-500" />
               </div>
               <div className="mb-6">
                 <label htmlFor="email" className="block text-sm font-medium text-teal-700 mb-2">Email</label>
-                <Input id="email" type="email" placeholder="Your email" className="border-teal-300 focus:border-teal-500 focus:ring-teal-500" />
+                <Input id="email" required name="email" type="email" placeholder="Your email" className="border-teal-300 focus:border-teal-500 focus:ring-teal-500" />
               </div>
               <div className="mb-6">
                 <label htmlFor="message" className="block text-sm font-medium text-teal-700 mb-2">Message</label>
-                <Textarea id="message" placeholder="Your message" className="border-teal-300 focus:border-teal-500 focus:ring-teal-500" rows={4} />
+                <Textarea id="message" required name="message" placeholder="Your message" className="border-teal-300 focus:border-teal-500 focus:ring-teal-500" rows={4} />
               </div>
               <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-colors">Send Message</Button>
             </form>

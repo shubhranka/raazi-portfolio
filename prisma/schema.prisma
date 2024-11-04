@@ -21,6 +21,7 @@ model Sadhak {
   email     String
   bookings  Booking[]
   slots     Slot[]
+  createdAt DateTime @default(now())
 }
 
 model Booking {
@@ -32,6 +33,7 @@ model Booking {
   fees          Float
   status        String
   payment_link  String
+  createdAt     DateTime  @default(now())
 }
 
 model Slot {
@@ -64,3 +66,10 @@ enum Plan{
   PRIVATE
 }
 
+model Queries {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
