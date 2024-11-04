@@ -17,7 +17,7 @@ export default function ModernYogaTeacherPortfolio() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg" alt="Yoga Logo" className="w-10 h-10 mr-2" />
+            <img src="https://hebbkx1anhila5yf.public.blob.c:\Users\Dell\Downloads\raazi_logo.icovercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg" alt="Yoga Logo" className="w-10 h-10 mr-2" />
             <h1 className="text-2xl font-bold text-teal-800">RaaziYog</h1>
           </div>
           <nav className="hidden md:block">
@@ -151,7 +151,7 @@ export default function ModernYogaTeacherPortfolio() {
           </div>
         </section>
 
-        <section id="testimonials" className="py-20 bg-teal-50">
+        {/* <section id="testimonials" className="py-20 bg-teal-50">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-bold text-teal-900 mb-12 text-center">What My Students Say</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -171,6 +171,20 @@ export default function ModernYogaTeacherPortfolio() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+        </section> */}
+
+        <section id="testimonials" className="py-20 bg-teal-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold text-teal-900 mb-6 text-center">Share Your Experience</h2>
+            <p className="text-xl text-teal-700 mb-8 text-center">We value your feedback. Your testimonial can inspire others on their yoga journey.</p>
+            <div className="flex justify-center">
+              <Link href="/submit-testimonial">
+                <Button size="lg" className="bg-teal-600 hover:bg-teal-700 text-white transition-colors">
+                  Submit Your Testimonial
+                </Button>
+              </Link>
             </div>
           </div>
         </section>

@@ -6,6 +6,7 @@ import { Loader } from "./loader"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { PaymentFailed } from "./payment_failed"
 const prisma = new PrismaClient()
 
 
@@ -15,6 +16,7 @@ export default function CallbackPage() {
   const [loading, setLoading] = React.useState(true)
   const [totalAmount, setTotalAmount] = React.useState(0)
   const [bookingId, setBookingId] = React.useState("")
+  const [paymentFailed, setPaymentFailed] = React.useState(false)
 
 
   useEffect(() => {
@@ -31,6 +33,11 @@ export default function CallbackPage() {
         body: JSON.stringify({body}),
       })
 
+      if (!paymentStatusResponse.ok) {
+        setPaymentFailed(true)
+        setLoading(false)
+      }
+
       const paymentStatus = await paymentStatusResponse.json()
 
       if (paymentStatus.success) {
@@ -46,6 +53,10 @@ export default function CallbackPage() {
 
   if (loading) {
     return <Loader />
+  }
+
+  if (paymentFailed) {
+    return <PaymentFailed errorMessage="Transaction declined by bank" />
   }
 
 

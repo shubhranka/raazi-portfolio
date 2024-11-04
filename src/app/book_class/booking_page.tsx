@@ -13,6 +13,7 @@ import TimeSlot from "./time_slot"
 import { Day, Slot } from "@prisma/client"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
+import { Redirection } from "./redirection"
 
 type SessionType = 'group' | 'private'
 type GroupType = 'weekday' | 'weekend'
@@ -33,6 +34,7 @@ export default function FinalBookSession() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi')
   const [paymentStarted, setPaymentStarted] = useState(false)
+  const [redirecting, setRedirecting] = useState(false)
   const [upiId, setUpiId] = useState('')
   const [totalSelectedWeekdays, setTotalSelectedWeekdays] = useState(0)
   const [totalSelectedWeekends, setTotalSelectedWeekends] = useState(0)
@@ -103,6 +105,8 @@ export default function FinalBookSession() {
       return false
     }
 
+    setRedirecting(true)
+
     const response = await fetch('/api/payment_process', {
       method: 'POST',
       headers: {
@@ -130,7 +134,9 @@ export default function FinalBookSession() {
     setGroupWeekdaySlots(data.weekdaySlots)
     setGroupWeekendSlots(data.weekendSlots)
   }
-
+  if (redirecting) {
+    return <Redirection />
+  }
   const handleDaySelection = async (day: string) => {
 
     setPrivateSlotsLoading(true)
