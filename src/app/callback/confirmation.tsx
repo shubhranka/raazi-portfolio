@@ -30,11 +30,13 @@ export function Confirmation({ bookingId, totalAmount }: ConfirmationProps) {
             <span className="text-lg font-bold text-gray-800">Rs {totalAmount}/-</span>
           </div>
         </CardContent>
-        {/* <CardFooter>
-          <Button className="w-full" onClick={onClose}>
+        <CardFooter>
+          <Button className="w-full bg-teal-600 mt-5" onClick={() => {
+            window.open("/", "_self")
+          }}>
             Close
           </Button>
-        </CardFooter> */}
+        </CardFooter>
       </Card>
     </div>
   )

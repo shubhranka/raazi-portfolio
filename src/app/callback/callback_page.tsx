@@ -34,7 +34,7 @@ export default function CallbackPage() {
       })
 
       if (!paymentStatusResponse.ok) {
-        setPaymentFailed(true)
+        setPaymentFailed(false)
         setLoading(false)
       }
 
