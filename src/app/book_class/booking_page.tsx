@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { X } from "lucide-react"
-import { handleCost } from "../actions"
+import { calculatePrice, handleCost } from "../actions"
 import TimeSlot from "./time_slot"
 import { Day, Slot } from "@prisma/client"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -64,10 +64,15 @@ export default function FinalBookSession() {
   useEffect(() => {
     handleSetPrice()
     setGroupSlots()
-  }, [totalSelectedWeekdays, totalSelectedWeekends, sadhaks])
+  }, [totalSelectedWeekdays, totalSelectedWeekends, sadhaks, selectedSlots])
 
   const handleSetPrice = async () => {
-    setPrice(await handleCost(totalSelectedWeekdays, totalSelectedWeekends, sadhaks))
+    // setPrice(await handleCost(totalSelectedWeekdays, totalSelectedWeekends, sadhaks))
+    setPrice(calculatePrice(selectedSlots))
+    const selectedWeekdays = selectedSlots.filter(slot => !(slot.day === Day.SATURDAY || slot.day === Day.SUNDAY)).length
+    const selectedWeekends = selectedSlots.filter(slot => slot.day === Day.SATURDAY || slot.day === Day.SUNDAY).length
+    setTotalSelectedWeekdays(selectedWeekdays)
+    setTotalSelectedWeekends(selectedWeekends)
   }
 
   const validateInputs = async () => {
