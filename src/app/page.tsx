@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Heart, Star, Feather, Sun, Moon, Wind, Menu, Facebook, Instagram, Twitter, Phone, Mail } from "lucide-react"
+import { Heart, Star, Feather, Sun, Moon, Wind, Menu, Facebook, Instagram, Twitter, Phone, Mail, Youtube } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { motion } from "framer-motion"
 
 export default function ModernYogaTeacherPortfolio() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -77,8 +78,8 @@ export default function ModernYogaTeacherPortfolio() {
               Join me on a journey to harmonize mind, body, and spirit
             </p>
             <Link href={"/book_class"}><Button
-              size="lg"
-              className="bg-teal-600 hover:bg-teal-700 text-white transition-colors animate-fade-in-up animation-delay-400"
+              // size="lg"
+              className="text-xl font-bold p-8 bg-teal-600 hover:bg-teal-700 text-white transition-colors animate-fade-in-up animation-delay-400"
             >
               Book a Session
             </Button>
@@ -238,14 +239,11 @@ export default function ModernYogaTeacherPortfolio() {
             <div className="flex flex-col items-center md:items-start">
               <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
               <div className="flex space-x-4">
-                <a href="#" className="hover:text-teal-200 transition-colors">
-                  <Facebook className="w-6 h-6" />
+                <a href="https://youtube.com/@raaziyog12" className="hover:text-teal-200 transition-colors">
+                  <Youtube className="w-8 h-8" />
                 </a>
-                <a href="#" className="hover:text-teal-200 transition-colors">
-                  <Instagram className="w-6 h-6" />
-                </a>
-                <a href="#" className="hover:text-teal-200 transition-colors">
-                  <Twitter className="w-6 h-6" />
+                <a href="https://www.instagram.com/raaziyog" className="hover:text-teal-200 transition-colors">
+                  <Instagram className="w-6 h-6 mt-1" />
                 </a>
               </div>
             </div>
