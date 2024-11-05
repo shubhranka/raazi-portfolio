@@ -64,10 +64,9 @@ export default function FinalBookSession() {
   useEffect(() => {
     handleSetPrice()
     setGroupSlots()
-  }, [totalSelectedWeekdays, totalSelectedWeekends, sadhaks, selectedSlots])
+  }, [selectedSlots])
 
   const handleSetPrice = async () => {
-    // setPrice(await handleCost(totalSelectedWeekdays, totalSelectedWeekends, sadhaks))
     setPrice(calculatePrice(selectedSlots))
     const selectedWeekdays = selectedSlots.filter(slot => !(slot.day === Day.SATURDAY || slot.day === Day.SUNDAY)).length
     const selectedWeekends = selectedSlots.filter(slot => slot.day === Day.SATURDAY || slot.day === Day.SUNDAY).length
