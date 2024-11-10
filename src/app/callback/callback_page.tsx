@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PaymentFailed } from "./payment_failed"
+import { createGoogleMeetEvent } from "../actions"
 const prisma = new PrismaClient()
 
 
@@ -41,9 +42,9 @@ export default function CallbackPage() {
       const paymentStatus = await paymentStatusResponse.json()
 
       if (paymentStatus.success) {
-        setLoading(false)
         setTotalAmount(paymentStatus.amount/100)
         setBookingId(paymentStatus.bookingId)
+        setLoading(false)
       }
     }
 

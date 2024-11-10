@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google-apps/meet": "^0.3.0",
+    "@google-cloud/local-auth": "^2.1.0",
     "@prisma/client": "^5.21.1",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
@@ -20,11 +22,13 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.9",
+    "googleapis": "^144.0.0",
     "lucide-react": "^0.453.0",
     "next": "^15.0.1",
     "razorpay": "^2.9.5",
     "react": "^18",
     "react-dom": "^18",
+    "redis": "^4.7.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "yoga-portfolio": "file:"

@@ -259,6 +259,13 @@ export default function ModernYogaTeacherPortfolio() {
               </div>
             </div>
           </div>
+          <div className="mt-8 pt-8 border-t border-teal-800 text-center md:text-left">
+            <ul className="flex flex-col md:flex-row justify-center md:justify-start space-y-2 md:space-y-0 md:space-x-6">
+              <li><Link href="/privacy-policy" className="hover:text-teal-200 transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:text-teal-200 transition-colors">Terms and Conditions</Link></li>
+              <li><Link href="/refunds-cancellations" className="hover:text-teal-200 transition-colors">Refunds/Cancellations</Link></li>
+            </ul>
+          </div>
         </div>
       </footer>
     </div>
