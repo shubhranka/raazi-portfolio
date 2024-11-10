@@ -26,42 +26,37 @@ export async function POST(req: Request) {
         payment_link: razorpay_payment_link_id as string,
       },
     });
-    
+
     if (paymentInfo.status === "paid") {
-    await prisma.slot.updateMany({
-      where: {
-        bookingId: booking!.id,
-        plan: Plan.PRIVATE,
-      },
-      data: {
-        available: false,
-      },
-    });
+      await prisma.slot.updateMany({
+        where: {
+          bookingId: booking!.id,
+          plan: Plan.PRIVATE,
+        },
+        data: {
+          available: false,
+        },
+      });
 
-    const slots = await prisma.slot.findMany({
-      where: {
-        bookingId: booking!.id,
-        plan: Plan.PRIVATE,
-      },
-    });
+      const slots = await prisma.slot.findMany({
+        where: {
+          bookingId: booking!.id,
+          plan: Plan.PRIVATE,
+        },
+      });
 
-    const sadhak = await prisma.sadhak.findFirst({
-      where: {
-        id: booking!.sadhakId,
-      },
-    });
-
-        // Create a gmeet link
-        const gmeetLink = await createGoogleMeetEvent({
-          email: sadhak!.email,
-          slots
-        });
-        // Send Welcome Email
-        await sendWelcomeEmail(
-          sadhak!.email,
-          sadhak!.name,
-          gmeetLink
-        );
+      const sadhak = await prisma.sadhak.findFirst({
+        where: {
+          id: booking!.sadhakId,
+        },
+      });
+      // Create a gmeet link
+      const gmeetLink = await createGoogleMeetEvent({
+        email: sadhak!.email,
+        slots,
+      });
+      // Send Welcome Email
+      await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink);
       // and whatsapp
       // Verification succeeded
       return NextResponse.json(

@@ -8,9 +8,7 @@ export async function POST(req: Request) {
 
     const {name, email, message } = body;
 
-    console.log(name, email, message)
-
-    const query = await prisma.queries.create({
+    await prisma.queries.create({
         data: {
             name,
             email,

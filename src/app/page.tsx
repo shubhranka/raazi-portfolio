@@ -199,8 +199,6 @@ export default function ModernYogaTeacherPortfolio() {
               const name = formData.get("name");
               const email = formData.get("email");
               const message = formData.get("message");
-
-              console.log({ name, email, message });
     
               // Send the form data using fetch
               await fetch("/api/connect", {

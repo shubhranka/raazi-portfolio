@@ -193,7 +193,6 @@ export default function FinalBookSession() {
     const newSelectedSlots = selectedSlots.filter((cslot) => !(cslot.day == slot.day && cslot.plan == slot.plan))
 
     newSelectedSlots.push(slot)
-    // console.log(newSelectedSlots)
     setSelectedSlots(newSelectedSlots)
     setSelectedDay(null)
     setIsTimeDialogOpen(false)

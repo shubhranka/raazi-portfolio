@@ -115,8 +115,6 @@ export async function createGoogleMeetEvent({ email, slots }: { email: string, s
               params: { conferenceDataVersion: 1, sendUpdates: "all" },
             }
           );
-
-          console.log("Event created: %s", data.htmlLink);
         return data.hangoutLink;
     } catch (error) {
         console.error("Error creating event:", error);
@@ -231,7 +229,6 @@ export async function sendWelcomeEmail (email : string, name:string, meetingLink
               },
             }
           );
-        console.log("Email sent successfully to %s", email);
     } catch (error) {
         console.error("Error sending email:", error);
     }

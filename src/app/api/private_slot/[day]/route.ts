@@ -11,8 +11,6 @@ export async function GET(
 ) {
   const { day } = await params;
 
-  console.log(day)
-
   // Fetch slots from the database where the day matches and slots are available
   const slots = await prisma.slot.findMany({
     where: {

@@ -49,7 +49,7 @@ export default function CallbackPage() {
     }
 
     fetchPayment()
-  })
+  },[])
 
 
   if (loading) {
