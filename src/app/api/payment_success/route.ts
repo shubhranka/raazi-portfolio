@@ -51,21 +51,17 @@ export async function POST(req: Request) {
       },
     });
 
-    
-
-      (async () => {
         // Create a gmeet link
         const gmeetLink = await createGoogleMeetEvent({
           email: sadhak!.email,
           slots
         });
         // Send Welcome Email
-        sendWelcomeEmail(
+        await sendWelcomeEmail(
           sadhak!.email,
           sadhak!.name,
           gmeetLink
         );
-      })();
       // and whatsapp
       // Verification succeeded
       return NextResponse.json(
