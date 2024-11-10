@@ -1,6 +1,7 @@
 import { Day, Slot } from "@prisma/client";
-import { google } from 'googleapis';
-import { createClient } from 'redis';
+import jwt from "jsonwebtoken";
+import axios from "axios";
+
 interface TimeSlot extends Slot {
     time: string
   }
@@ -42,34 +43,11 @@ export const calculatePrice = (slots: TimeSlot[]) => {
 }
 
 export async function createGoogleMeetEvent({ email, slots }: { email: string, slots: Slot[] }) {
-    // Path to your service account JSON file
-    const redis_url = process.env.REDIS_URL;
-
-    const client = createClient({
-        url: redis_url,
-    });
-
+ 
     const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
 
-    // client.on('error', err => console.log('Redis Client Error', err));
     try {
-        await client.connect();
-
-        const value = await client.get("service-json");
-
-        // Authenticate using the service account
-        const auth = new google.auth.GoogleAuth({
-            credentials: JSON.parse(value!),
-            scopes: [
-                "https://www.googleapis.com/auth/calendar",
-                "https://www.googleapis.com/auth/gmail.send",
-            ],
-            clientOptions: {
-                subject: "founder@raaziyog.com", // Replace with the email of the user to impersonate
-            },
-        });
-
-        const calendar = google.calendar({ version: "v3", auth });
+        const token = await getAccessToken();
 
         let startDay = new Date();
         let currentDaySlot = slots.find(
@@ -87,7 +65,7 @@ export async function createGoogleMeetEvent({ email, slots }: { email: string, s
         startDateTime.setHours(currentDaySlot.from, 0, 0, 0);
 
         const endDateTime = startDay;
-        endDateTime.setHours(currentDaySlot.from+1, 0, 0, 0);
+        endDateTime.setHours(currentDaySlot.to, 0, 0, 0);
 
         const event = {
             summary: "Welcome to Your Monthly Yoga Journey!",
@@ -126,46 +104,30 @@ export async function createGoogleMeetEvent({ email, slots }: { email: string, s
                 )
 
         };
+        const { data } = await axios.post(
+            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+            event,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              params: { conferenceDataVersion: 1, sendUpdates: "all" },
+            }
+          );
 
-        // Insert the event into the user's primary calendar
-        const response = await (calendar as any).events.insert({
-            calendarId: "primary",
-            resource: event,
-            conferenceDataVersion: 1,
-            sendUpdates: "all",
-        });
-        return response.data.hangoutLink;
+        return data.hangoutLink;
     } catch (error) {
         console.error("Error creating event:", error);
     } finally {
-        // Ensure Redis client disconnects properly to exit the process
-        await client.disconnect();
-        console.log("Redis connection closed. Exiting...");
-        //  process.exit(0); // Explicitly exit the process
+        
     }
 }
 
 export async function sendWelcomeEmail (email : string, name:string, meetingLink:string) {
     try {
-        const redis_url = process.env.REDIS_URL;
 
-        const client = createClient({
-            url: redis_url,
-        });
-        await client.connect();
-
-        const value = await client.get("service-json");
-        const auth = new google.auth.GoogleAuth({
-            credentials: JSON.parse(value!),
-            scopes: [
-                "https://www.googleapis.com/auth/calendar",
-                "https://www.googleapis.com/auth/gmail.send",
-            ],
-            clientOptions: {
-                subject: "founder@raaziyog.com", // Replace with the email of the user to impersonate
-            },
-        });
-        const gmail = google.gmail({ version: "v1", auth });
+        const token = await getAccessToken();
 
         const emailContent = [
             'From: "RaaziYog" <founder@raaziyog.com>',
@@ -258,13 +220,42 @@ export async function sendWelcomeEmail (email : string, name:string, meetingLink
             .replace(/=+$/, "");
 
         // Send the email
-        await gmail.users.messages.send({
-            userId: "me",
-            requestBody: {
-                raw: base64EncodedEmail,
-            },
-        });
+        await axios.post(
+            "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+            { raw: base64EncodedEmail },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
     } catch (error) {
         console.error("Error sending email:", error);
     }
 };
+
+const getAccessToken = async () => {
+// Helper function to get an access token
+  const token = jwt.sign(
+    {
+      iss: process.env.GOOGLE_CLIENT_EMAIL,
+      scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.send",
+      sub: "founder@raaziyog.com",
+      aud: "https://oauth2.googleapis.com/token",
+      exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiration
+      iat: Math.floor(Date.now() / 1000),
+    },
+    process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+    { algorithm: "RS256" }
+  );
+
+  const { data } = await axios.post("https://oauth2.googleapis.com/token", {
+    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    assertion: token,
+  });
+
+  return data.access_token;
+}
+
+    
