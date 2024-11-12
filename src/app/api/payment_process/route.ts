@@ -87,7 +87,8 @@ const makeData = (amount: number, reference_id: string, name: string, phone: str
         "email": email,
     },
     "callback_url": callback_url,
-    "callback_method": "get"
+    "callback_method": "get",
+    "expire_by": Date.now() + 300000
 });
 
 export async function POST(

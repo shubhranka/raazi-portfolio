@@ -234,6 +234,132 @@ export async function sendWelcomeEmail (email : string, name:string, meetingLink
     }
 };
 
+export async function addAttendeesToEvent(eventId: string, newEmails: string[]) {
+    try {
+        const token = await getAccessToken();
+
+        // 1. Fetch the existing event details
+        const eventUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`;
+        const { data: eventData } = await axios.get(eventUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        // 2. Add new attendees to the existing list of attendees
+        const updatedAttendees = [
+            ...eventData.attendees,  // Existing attendees
+            ...newEmails.map((email) => ({ email }))  // New attendees
+        ];
+
+        // 3. Update the event with the new list of attendees
+        const updatedEvent = {
+            ...eventData,
+            attendees: updatedAttendees,
+        };
+
+        const updateUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`;
+        const response = await axios.patch(updateUrl, updatedEvent, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        return response.data.hangoutLink; // The updated meeting link
+    } catch (error) {
+        console.error("Error adding attendees to event:", error);
+    }
+}
+
+// Function to send email notification to new attendee
+export async function sendEmailNotification(email:string, meetingLink: string) {
+    try {
+        const token = await getAccessToken();
+
+        // Prepare email content
+        const emailContent = [
+            'From: "RaaziYog" <founder@raaziyog.com>',
+            `To: ${email}`,
+            "Subject: You're Invited to a Yoga Class!",
+            'Content-Type: text/html; charset="UTF-8"',
+            "",
+            `<!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        background-color: #f4f4f4;
+                        padding: 20px;
+                        margin: 0;
+                    }
+                    .header {
+                        font-size: 24px;
+                        font-weight: bold;
+                        margin-bottom: 20px;
+                        color: #333;
+                        text-align: left;
+                    }
+                    .content {
+                        margin-bottom: 20px;
+                        color: #555;
+                        text-align: left;
+                    }
+                    .content p {
+                        margin: 10px 0;
+                    }
+                    .footer {
+                        font-size: 14px;
+                        color: #777;
+                        text-align: left;
+                    }
+                    .footer p {
+                        margin: 5px 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">You're Invited to a Yoga Class with RaaziYog!</div>
+                <div class="content">
+                    <p>Dear Participant,</p>
+                    <p>We are excited to have you join our Yoga sessions with RaaziYog. Your session has been scheduled online, and we are thrilled to have you with us!</p>
+                    <p>Here are the details for your upcoming class:</p>
+                    <p><strong>Join via Google Meet:</strong> <a href="${meetingLink}">${meetingLink}</a></p>
+                    <p>Please make sure to join the session on time. If you have any questions, feel free to reach out to us.</p>
+                </div>
+                <div class="footer">
+                    <p>Warm regards,<br>The RaaziYog Team</p>
+                </div>
+            </body>
+            </html>`,
+        ].join("\n");
+
+        // Properly encode the email for Gmail API
+        const base64EncodedEmail = Buffer.from(emailContent)
+            .toString("base64")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
+
+        // Send the email
+        await axios.post(
+            "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+            { raw: base64EncodedEmail },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+    } catch (error) {
+        console.error("Error sending email notification:", error);
+    }
+}
+
 const getAccessToken = async () => {
 // Helper function to get an access token
   const token = jwt.sign(

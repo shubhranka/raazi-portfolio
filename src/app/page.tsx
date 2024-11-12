@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Heart, Star, Feather, Sun, Moon, Wind, Menu, Facebook, Instagram, Twitter, Phone, Mail, Youtube } from "lucide-react"
+import { Heart, Star, Feather, Sun, Moon, Wind, Menu, Instagram, Phone, Mail, Youtube, MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
@@ -251,9 +251,13 @@ export default function ModernYogaTeacherPortfolio() {
                 <Phone className="w-5 h-5 mr-2" />
                 <span>+91 93993 28872</span>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center mb-2">
                 <Mail className="w-5 h-5 mr-2" />
                 <span>founder@raaziyog.com</span>
+              </div>
+              <div className="flex items-center">
+                <MapPin className="w-5 h-5 mr-2" />
+                <span>F-11, Jankinagar, Vijaynagar, <br/>Jabalpur, Madhya Pradesh (482002)</span>
               </div>
             </div>
           </div>

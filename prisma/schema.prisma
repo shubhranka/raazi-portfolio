@@ -73,3 +73,9 @@ model Queries {
   message   String
   createdAt DateTime @default(now())
 }
+
+model GroupMeetingLink {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String
+  slotId    String  @db.ObjectId
+}

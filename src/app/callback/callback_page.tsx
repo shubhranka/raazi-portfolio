@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PaymentFailed } from "./payment_failed"
 import { createGoogleMeetEvent } from "../actions"
+import PaymentNotFound from "./payment_error"
 const prisma = new PrismaClient()
 
 
@@ -18,6 +19,7 @@ export default function CallbackPage() {
   const [totalAmount, setTotalAmount] = React.useState(0)
   const [bookingId, setBookingId] = React.useState("")
   const [paymentFailed, setPaymentFailed] = React.useState(false)
+  const [paymentErrorMesssage, setPaymentErrorMessage] = React.useState("")
 
 
   useEffect(() => {
@@ -34,12 +36,13 @@ export default function CallbackPage() {
         body: JSON.stringify({body}),
       })
 
+      const paymentStatus = await paymentStatusResponse.json()
+
       if (!paymentStatusResponse.ok) {
-        setPaymentFailed(false)
+        setPaymentErrorMessage(paymentStatus.message)
+        setPaymentFailed(true)
         setLoading(false)
       }
-
-      const paymentStatus = await paymentStatusResponse.json()
 
       if (paymentStatus.success) {
         setTotalAmount(paymentStatus.amount/100)
@@ -57,7 +60,7 @@ export default function CallbackPage() {
   }
 
   if (paymentFailed) {
-    return <PaymentFailed errorMessage="Transaction declined by bank" />
+    return <PaymentNotFound message={paymentErrorMesssage} />
   }
 
 
