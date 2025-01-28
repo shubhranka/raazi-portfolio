@@ -149,21 +149,17 @@ export default function FinalBookSession() {
     setIsTimeDialogOpen(true)
     if (['Saturday', 'Sunday'].includes(day)) {
       if (selectedDays.includes(day)) {
-        setTotalSelectedWeekends(totalSelectedWeekends - 1)
         setSelectedDays(selectedDays.filter(d => d !== day))
       } else {
         if (totalSelectedWeekends < 2) {
-          setTotalSelectedWeekends(totalSelectedWeekends + 1)
           setSelectedDays([...selectedDays, day])
         }
       }
     } else {
       if (selectedDays.includes(day)) {
-        setTotalSelectedWeekdays(totalSelectedWeekdays - 1)
         setSelectedDays(selectedDays.filter(d => d !== day))
       } else {
         if (totalSelectedWeekdays < 5) {
-          setTotalSelectedWeekdays(totalSelectedWeekdays + 1)
           setSelectedDays([...selectedDays, day])
         }
       }
@@ -358,6 +354,10 @@ export default function FinalBookSession() {
                           </DialogDescription>
                         </DialogHeader>
                           {privateSlotsLoading && <div className="h-12" ><Spinner /></div>}
+                        {!privateSlotsLoading && privateSlots.length === 0 && 
+                          <div className="text-center">No slots available</div>
+                        }
+                        
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[150px] overflow-y-auto">
                           {!privateSlotsLoading && privateSlots.map((slot) => (
                             <Button
