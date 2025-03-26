@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Eye, EyeOff, Mail, Lock, User, Phone, MailIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,11 +8,68 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from 'next/image'
+import {app,auth} from '@/config/firebase'
+import ReCAPTCHA from "react-google-recaptcha";
+import {
+  GoogleReCaptchaProvider,
+  GoogleReCaptcha
+} from 'react-google-recaptcha-v3';
+
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+
+
 
 export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [login, setLogin] = useState(true)
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
+  async function handleCaptchaSubmission(token: string | null) {
+    try {
+      if (token) {
+        await fetch("/api/captcha", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        });
+        setIsVerified(true);
+      }
+    } catch (e) {
+      setIsVerified(false);
+    }
+  }
+
+  const handleChange = (token: string | null) => {
+    handleCaptchaSubmission(token);
+  };
+
+  function handleExpired() {
+    setIsVerified(false);
+  }
+
+  function handleVerify(token: string | null) {
+    handleCaptchaSubmission(token);
+  }
+
+  const handleSignUp = () => {
+    const recaptchaVerifier = new RecaptchaVerifier(auth,'sign-in-button', {
+      'size': 'invisible',
+      'callback': (value:any) => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+        // onSignInSubmit();
+        console.log(value)
+      }
+    });
+
+    signInWithPhoneNumber(auth, "+918319060608",recaptchaVerifier).then((confirmationResult:any) => {
+      // SMS sent. Confirm the verification process by the user.
+      // onSignInSubmit(confirmationResult);
+    })
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-teal-100 to-teal-200 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm shadow-xl">
@@ -81,13 +138,20 @@ export default function AuthPage() {
                       <Label htmlFor="whatsapp" className="text-teal-700 text-sm">Send me updates via WhatsApp</Label>
                     </div>
                   </div>
+                  {/* <div className="space-y-2">
+                    <GoogleReCaptchaProvider reCaptchaKey={process.env.CAPTCHA_SITE_KEY!}>
+                      <GoogleReCaptcha
+                          onVerify={handleVerify}
+                        />
+                    </GoogleReCaptchaProvider>
+                  </div> */}
                 </div>
               </form>
             </TabsContent>
           </Tabs>
         </CardContent>
         <CardFooter>
-          <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+          <Button id='sign-in-button' className="w-full bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSignUp}>
             {/* The button text will change based on the active tab */}
             {/* <Button value="login">Log In</Button>
             <Button value="register">Sign Up</Button> */}
