@@ -1,10 +1,6 @@
-import { Day, Slot } from "@prisma/client";
+import { Day, Time } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import axios from "axios";
-
-interface TimeSlot extends Slot {
-    time: string
-  }
   
 
 export function handleCost(weekdays: number, weekends: number, sadhaks: number) {
@@ -26,52 +22,56 @@ export function handleCost(weekdays: number, weekends: number, sadhaks: number) 
     return price;
 }
 
-export const calculatePrice = (slots: TimeSlot[]) => {
-    if (slots.length === 0) {
-        return 0;
-    }
-    if (slots[0].plan === "PRIVATE") {
-        const weekdays = slots.filter(slot => !(slot.day === Day.SATURDAY || slot.day === Day.SUNDAY)).length;
-        const weekends = slots.filter(slot => slot.day === Day.SATURDAY || slot.day === Day.SUNDAY).length;
-        return handleCost(weekdays, weekends, 1);
-    } else if (slots[0].day === Day.WEEKDAY) {
-        return 1500;
-    } else {
-        return 600;
-    }
+// export const calculatePrice = (slots: TimeSlot[]) => {
+//     if (slots.length === 0) {
+//         return 0;
+//     }
+//     if (slots[0].plan === "PRIVATE") {
+//         const weekdays = slots.filter(slot => !(slot.day === Day.SATURDAY || slot.day === Day.SUNDAY)).length;
+//         const weekends = slots.filter(slot => slot.day === Day.SATURDAY || slot.day === Day.SUNDAY).length;
+//         return handleCost(weekdays, weekends, 1);
+//     } else if (slots[0].day === Day.WEEKDAY) {
+//         return 1500;
+//     } else {
+//         return 600;
+//     }
 
-}
+// }
 
-export async function createGoogleMeetEvent({ email, slots }: { email: string, slots: Slot[] }) {
- 
-    const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-
+export async function createGoogleMeetEvent({ email, days, from, to }: { email: string, days: Day[], from: Time, to: Time }) {
+    
+    const dayArray: Day[] = [Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY, Day.SATURDAY, Day.SUNDAY];
     try {
         const token = await getAccessToken();
 
         let startDay = new Date();
-        let currentDaySlot = slots.find(
-            (slot) => slot.day === days[startDay.getDay()]
-        );
-        while (!currentDaySlot) {
+        // let currentDaySlot = days.find(
+        //     (day) => day === days[startDay.getDay()]
+        // );
+        // while (!currentDaySlot) {
+        //     startDay.setDate(startDay.getDate() + 1);
+        //     currentDaySlot = days.find(
+        //         (day) => day === days[startDay.getDay()]
+        //     );
+        // }
+        while(!days.includes(dayArray[startDay.getDay()])) {
             startDay.setDate(startDay.getDate() + 1);
-            currentDaySlot = slots.find(
-                (slot) => slot.day === days[startDay.getDay()]
-            );
         }
 
 
-        const startDateTime = startDay;
-        startDateTime.setHours(currentDaySlot.from, 0, 0, 0);
+        console.log(from,to,startDay);
 
-        const endDateTime = startDay;
-        endDateTime.setHours(currentDaySlot.to, 0, 0, 0);
+        const startDateTime = new Date(startDay);
+        startDateTime.setHours(Number(from.hour), Number(from.minute), 0, 0);
+
+        const endDateTime = new Date(startDay);
+        endDateTime.setHours(Number(to.hour), Number(to.minute), 0, 0);
 
         const event = {
             summary: "Welcome to Your Monthly Yoga Journey!",
             location: "Online",
             description:
-                "Congratulations on starting your yoga sessions! This is your first meeting to kickstart a journey towards a healthier and more balanced life. We are excited to have you with us!",
+                "Congratulations on starting your yoga sessions! This is your meeting to kickstart a journey towards a healthier and more balanced life. We are excited to have you with us!",
             start: {
                 dateTime: startDateTime.toISOString(), // Set your desired start time here
                 timeZone: "Asia/Kolkata", // Use 'Asia/Kolkata' for IST
@@ -97,11 +97,8 @@ export async function createGoogleMeetEvent({ email, slots }: { email: string, s
                     },
                 },
             },
-            recurrence: slots
-                .map(
-                    (slot) =>
-                        `RRULE:FREQ=WEEKLY;COUNT=4;BYDAY=${slot.day[0] + slot.day[1]};BYHOUR=${slot.from};BYMINUTE=0`
-                )
+            recurrence: 
+          [`RRULE:FREQ=WEEKLY;BYDAY=${days.map(day => day[0] + day[1]).join(',')};BYHOUR=${from.hour};BYMINUTE=${from.minute};COUNT=4`]
 
         };
         const { data } = await axios.post(

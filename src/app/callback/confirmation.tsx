@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2 } from "lucide-react"
+import { useEffect } from "react"
 
 interface ConfirmationProps {
   bookingId: string
@@ -32,7 +33,7 @@ export function Confirmation({ bookingId, totalAmount }: ConfirmationProps) {
         </CardContent>
         <CardFooter>
           <Button className="w-full bg-teal-600 mt-5" onClick={() => {
-            window.open("/", "_self")
+            window.open("/dashboard", "_self")
           }}>
             Close
           </Button>

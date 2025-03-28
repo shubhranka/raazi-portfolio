@@ -3,7 +3,7 @@ import {
   createGoogleMeetEvent,
   sendWelcomeEmail,
 } from "@/app/actions";
-import { Booking, Plan, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     const { razorpay_payment_link_id } = body;
 
     const instance = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID || "",
-      key_secret: process.env.RAZORPAY_SECRET,
+      key_id: process.env.RAZ_KEY_ID || "",
+      key_secret: process.env.RAZ_KEY_SECRET,
       headers: { "Content-Type": "application/json" },
     });
 
@@ -54,72 +54,79 @@ export async function POST(req: Request) {
     }
 
     if (paymentInfo.status === "paid") {
-      if (booking.plan === Plan.GROUP) {
-        await prisma.booking.update({
-          where: {
-            id: booking!.id,
-          },
-          data: {
-            status: "PAID",
-          },
-        });
-        const slots = await prisma.slot.findMany({
-          where: {
-            bookingId: booking!.id,
-          },
-        });
-        const gmeetEventId = await prisma.groupMeetingLink.findFirst({
-          where: {
-            slotId: slots[0].id,
-          },
-        });
+      if (true) {
+      //   await prisma.booking.update({
+      //     where: {
+      //       id: booking!.id,
+      //     },
+      //     data: {
+      //       status: "PAID",
+      //     },
+      //   });
+      //   const slots = await prisma.slot.findMany({
+      //     where: {
+      //       bookingId: booking!.id,
+      //     },
+      //   });
+      //   const gmeetEventId = await prisma.groupMeetingLink.findFirst({
+      //     where: {
+      //       slotId: slots[0].id,
+      //     },
+      //   });
+      //   const sadhak = await prisma.sadhak.findFirst({
+      //     where: {
+      //       id: booking!.sadhakId,
+      //     },
+      //   });
+
+      //   const gmeetLink = await addAttendeesToEvent(gmeetEventId!.eventId, [
+      //     sadhak!.email,
+      //   ]);
+      //   await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink);
+
+      //   return NextResponse.json(
+      //     {
+      //       success: true,
+      //       message: "Payment verified successfully",
+      //       amount: paymentInfo.amount_paid,
+      //       bookingId: booking!.id,
+      //     },
+      //     { status: 200 }
+      //   );
+      // } else {
+      //   await prisma.slot.updateMany({
+      //     where: {
+      //       bookingId: booking!.id,
+      //       plan: Plan.PRIVATE,
+      //     },
+      //     data: {
+      //       available: false,
+      //     },
+      //   });
+
+      //   const slots = await prisma.slot.findMany({
+      //     where: {
+      //       bookingId: booking!.id,
+      //       plan: Plan.PRIVATE,
+      //     },
+      //   });
+
         const sadhak = await prisma.sadhak.findFirst({
           where: {
             id: booking!.sadhakId,
           },
         });
-
-        const gmeetLink = await addAttendeesToEvent(gmeetEventId!.eventId, [
-          sadhak!.email,
-        ]);
-        await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink);
-
-        return NextResponse.json(
-          {
-            success: true,
-            message: "Payment verified successfully",
-            amount: paymentInfo.amount_paid,
-            bookingId: booking!.id,
-          },
-          { status: 200 }
-        );
-      } else {
-        await prisma.slot.updateMany({
+        const course = await prisma.course.findFirst({
           where: {
-            bookingId: booking!.id,
-            plan: Plan.PRIVATE,
-          },
-          data: {
-            available: false,
-          },
-        });
-
-        const slots = await prisma.slot.findMany({
-          where: {
-            bookingId: booking!.id,
-            plan: Plan.PRIVATE,
-          },
-        });
-
-        const sadhak = await prisma.sadhak.findFirst({
-          where: {
-            id: booking!.sadhakId,
+            id: booking!.courseId,
           },
         });
         // Create a gmeet link
         const gmeetLink = await createGoogleMeetEvent({
           email: sadhak!.email,
-          slots,
+          days: course!.days,
+          from: course!.from,
+          to: course!.to
         });
         // Send Welcome Email
         await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink);
@@ -153,6 +160,7 @@ export async function POST(req: Request) {
       );
     }
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { success: false, message: "Something went wrong" },
       { status: 500 }

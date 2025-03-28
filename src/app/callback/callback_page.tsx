@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PaymentFailed } from "./payment_failed"
 import { createGoogleMeetEvent } from "../actions"
 import PaymentNotFound from "./payment_error"
+import { raazi_yog_tk, raazi_yog_tk_refresh } from "@/lib/utils"
 const prisma = new PrismaClient()
 
 
@@ -45,6 +46,18 @@ export default function CallbackPage() {
       }
 
       if (paymentStatus.success) {
+        const localToken = localStorage.getItem(raazi_yog_tk)
+        const token = await fetch("api/addCoursesToToken", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: localToken }),
+        })
+        const tokenResponse = await token.json()
+        localStorage.setItem(raazi_yog_tk, tokenResponse.token)
+        localStorage.setItem(raazi_yog_tk_refresh, tokenResponse.refreshToken)
+        
         setTotalAmount(paymentStatus.amount/100)
         setBookingId(paymentStatus.bookingId)
         setLoading(false)

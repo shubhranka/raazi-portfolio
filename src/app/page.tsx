@@ -77,11 +77,11 @@ export default function ModernYogaTeacherPortfolio() {
             <p className="text-xl md:text-2xl text-teal-700 mb-10 animate-fade-in-up animation-delay-200">
               Join me on a journey to harmonize mind, body, and spirit
             </p>
-            <Link href={"/signup"}><Button
+            <Link href={"/dashboard"}><Button
               // size="lg"
               className="text-xl font-bold p-8 bg-teal-600 hover:bg-teal-700 text-white transition-colors animate-fade-in-up animation-delay-400"
             >
-              Book a Session
+              Start Your Journey
             </Button>
             </Link> 
           </div>

@@ -20,7 +20,6 @@ model Sadhak {
   number    String
   email     String
   bookings  Booking[]
-  slots     Slot[]
   createdAt DateTime @default(now())
 }
 
@@ -28,25 +27,12 @@ model Booking {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   sadhak        Sadhak    @relation(fields: [sadhakId], references: [id])
   sadhakId      String    @db.ObjectId
-  plan          Plan
-  slots         Slot[]
-  fees          Float
+  course        Course    @relation(fields: [courseId], references: [id])
+  courseId      String    @db.ObjectId
+  payment_link  String?
   status        String
-  payment_link  String
-  createdAt     DateTime  @default(now())
-}
-
-model Slot {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  day       Day
-  plan      Plan
-  from      Int
-  to        Int
-  available Boolean
-  takenBy   Sadhak?  @relation(fields: [takenById], references: [id])
-  takenById String?  @db.ObjectId
-  booking   Booking? @relation(fields: [bookingId], references: [id])
-  bookingId String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 enum Day {
@@ -78,4 +64,25 @@ model GroupMeetingLink {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   eventId   String
   slotId    String  @db.ObjectId
+}
+
+
+model Course{
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  description String
+  price     Float
+  from      Time
+  to        Time
+  days      Day[]
+  bookings  Booking[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+type Time {
+  hour String
+  minute String
+  second String
+  median String
 }

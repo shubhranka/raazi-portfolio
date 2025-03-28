@@ -33,7 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-, "opr.mjs"  ],
+, "opr.mjs", "db_adder.js"  ],
   "exclude": [
     "node_modules"
   ]
