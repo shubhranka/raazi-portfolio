@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 const prisma = new PrismaClient()
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const course = await prisma.course.findUnique({
     where: {
       id: (await params).id
