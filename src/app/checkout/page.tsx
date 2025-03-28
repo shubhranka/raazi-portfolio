@@ -1,12 +1,18 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useEffect, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 import { checkToken } from "@/lib/utils"
 import { LoaderPinwheel } from "lucide-react";
 import CheckoutConfirmationPage from "./screen";
 
 export default function Page() {
+    return <Suspense fallback={<div>Loading...</div>}>
+      <SusedPage />
+    </Suspense>
+}
+
+function SusedPage() {
     const router = useRouter()
     const params = useSearchParams()
     const [loading, setLoading] = useState(true)
