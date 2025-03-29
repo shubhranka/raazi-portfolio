@@ -14,6 +14,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { raazi_yog_tk, raazi_yog_tk_refresh } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import AuthenticationLoadingPage from '@/components/ui/auth-loading'
 
 
 
@@ -36,6 +37,7 @@ export default function SignUpComponent() {
   const [numberError, setNumberError] = useState('');
   const [verificationLoading, setVerificationLoading] = useState(false)
   const [authenticating, setAuthenticating] = useState(false)
+  const [actualAuthenticating, setActualAuthenticating] = useState(false)
 
   async function handleCaptchaSubmission(token: string | null) {
     try {
@@ -81,6 +83,8 @@ export default function SignUpComponent() {
 
   const handleSignInSignUp = () => {
 
+    setLoading(true)
+
     if(!login && !name){
       setNameError('Name is required')
       return
@@ -110,8 +114,12 @@ export default function SignUpComponent() {
         setVerificationBox(true);
         setConfirmationResult(confirmationResult);
         setVerificationLoading(false)
+        setLoading(false)
       }).catch((error: any) => {
         console.log(error);
+        if (error.code === 'auth/invalid-phone-number') {
+          setNumberError('Invalid phone number')
+        }
         setVerificationLoading(false)
       })
     }
@@ -126,24 +134,28 @@ export default function SignUpComponent() {
           },
           body: login ? JSON.stringify({ token: result.user.accessToken }) : JSON.stringify({ token: result.user.accessToken, name, email }),
         }).then(async (response) => {
+          setActualAuthenticating(true)
           if (response.ok) {
             const data = await response.json();
             if ((data as any)?.token) {
               localStorage.setItem(raazi_yog_tk, (data as any)?.token);
               localStorage.setItem(raazi_yog_tk_refresh, (data as any)?.refresh_token);
-              // router.push("/book_class");
               if (router)
-                router.push("/book_class");
+                router.push("/dashboard");
             }
           }
           setAuthenticating(false)
+          setLoading(false)
         });
       }).catch((error: any) => {
+        setAuthenticating(false)
         console.log(error);
+        setLoading(false)
       })
     }
-
-
+  }
+  if (actualAuthenticating) {
+    return <AuthenticationLoadingPage/>
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-teal-100 to-teal-200 flex items-center justify-center p-4">
@@ -185,6 +197,7 @@ export default function SignUpComponent() {
                       <CodeSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 h-4 w-4" />
                     </div>
                   </div>}
+                  {loading && <Loader2 className="animate-spin" />}
                 </div>
               </form>
             </TabsContent>
@@ -242,7 +255,7 @@ export default function SignUpComponent() {
           </Tabs>
         </CardContent>
         <CardFooter>
-        <div id='recaptcha-container'></div>
+          <div id='recaptcha-container'></div>
           <Button id='sign-in-button' className="w-full bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSignInSignUp}>
             {/* The button text will change based on the active tab */}
             {/* <Button value="login">Log In</Button>
