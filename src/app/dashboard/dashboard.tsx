@@ -27,138 +27,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
-import { Course, Day } from "@prisma/client";
+import { Course } from "@prisma/client";
 import { cn } from "@/lib/utils";
-
-// This would typically come from a database or API
-// const userCourses = [
-//   {
-//     id: 1,
-//     name: "Get Rid Of Stifness",
-//     progress: 60,
-//     nextClass: "2024-11-20T09:00:00Z",
-//     booked: false,
-//     days: "Mon - Fri",
-//     time: "6:00 AM - 6:40 AM",
-//     price: 590,
-//   },
-//   {
-//     id: 2,
-//     name: "Stress Buster",
-//     progress: 30,
-//     nextClass: "2024-11-21T18:30:00Z",
-//     booked: false,
-//     days: "Mon, Wed, Fri",
-//     time: "8:00 PM - 8:30 PM",
-//     price: 390,
-//   },
-//   {
-//     id: 3,
-//     name: "Mindfulness",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon, Wed, Fri",
-//     time: "7:30 PM - 8:00 PM",
-//     price: 390,
-//   },
-//   {
-//     id: 4,
-//     name: "Strenth And Balance",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon - Fri",
-//     time: "5:00 PM - 5:40 PM",
-//     price: 590,
-//   },
-//   // { id: 5, name: "Flexibility", progress: 80, nextClass: "2024-11-22T07:00:00Z" },
-//   {
-//     id: 6,
-//     name: "Burn Lower Abdomen",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon - Fri",
-//     time: "6:40 AM - 7:20 AM",
-//     price: 590,
-//   },
-//   {
-//     id: 7,
-//     name: "Facial Yog",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon, Wed, Fri",
-//     time: "4:30 PM - 5:00 PM",
-//     price: 390,
-//   },
-//   {
-//     id: 8,
-//     name: "Yog for eye sight",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon, Wed, Fri",
-//     time: "3:00 PM - 3:30 PM",
-//     price: 390,
-//   },
-//   {
-//     id: 9,
-//     name: "Suryanamaskar",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon - Fri",
-//     time: "7:00 PM - 7:30 PM",
-//     price: 530,
-//   },
-//   {
-//     id: 11,
-//     name: "Pranayama",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon, Wed, Fri",
-//     time: "7:20 AM - 7:40 AM",
-//     price: 390,
-//   },
-//   {
-//     id: 12,
-//     name: "Therapeutic Yoga",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Sat, Sun",
-//     time: "10:30 AM - 12:00 PM",
-//     price: 6590,
-//   },
-//   {
-//     id: 13,
-//     name: "She Flows",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon - Fri",
-//     time: "6:00 PM - 7:00 PM",
-//     price: 1090,
-//   },
-//   {
-//     id: 10,
-//     name: "Regular",
-//     progress: 80,
-//     nextClass: "2024-11-22T07:00:00Z",
-//     booked: false,
-//     days: "Mon - Fri",
-//     time: "5:00 PM - 6:00 AM",
-//     price: 1090,
-//   },
-// ];
-
 const classFeedback = [
   {
     id: 1,
@@ -275,6 +147,12 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
     fetchCourses();
   }, []);
 
+  function handleLogout(): void {
+    localStorage.removeItem('raazi_yog_tk')
+    localStorage.removeItem('raazi_yog_tk_refresh')
+    window.location.href = '/signup'
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-teal-100 to-teal-200 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
@@ -292,7 +170,7 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
             </h1>
           </div>
           <div className="flex items-center space-x-4">
-            {/* <Button variant="outline">Notifications</Button> */}
+            <Button variant="outline" onClick={handleLogout}>Logout</Button>
             <Avatar className="h-10 w-10 md:h-12 md:w-12">
               <AvatarImage src="/placeholder.svg" alt="User" />
               <AvatarFallback>{firstLettersOfName}</AvatarFallback>

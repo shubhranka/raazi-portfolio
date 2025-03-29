@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { token } = body;
 
-    const user:any= jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!);
+    const user:any= jwt.verify(token, process.env.JWT_SECRET!);
     if (!user) {
         return NextResponse.json({ message: 'Invalid token.' }, { status: 400 });
     }
@@ -29,8 +29,8 @@ export async function POST(req: Request) {
     const courseIds = bookedCourses.map((booking) => booking.courseId);
     
 
-    const updatedToken = jwt.sign({ name: user?.name, email: user?.email, number: user?.number, bookedCourses: courseIds }, process.env.NEXT_PUBLIC_JWT_SECRET!, { expiresIn: '1d' });
-    const refreshToken = jwt.sign({ name: user?.name, email: user?.email, number: user?.number, bookedCourses: courseIds }, process.env.NEXT_PUBLIC_JWT_REFRESH_SECRET!, { expiresIn: '2d' });
+    const updatedToken = jwt.sign({ name: user?.name, email: user?.email, number: user?.number, bookedCourses: courseIds }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+    const refreshToken = jwt.sign({ name: user?.name, email: user?.email, number: user?.number, bookedCourses: courseIds }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '2d' });
     
     return NextResponse.json({ token: updatedToken, refreshToken }, { status: 200 });
 }

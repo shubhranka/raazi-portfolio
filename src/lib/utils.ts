@@ -15,31 +15,17 @@ export async function checkToken() {
   if (!raazi_yog_tk) {
     return null
   }
-  let user = jwt.verify(raazi_yog_tk, process.env.NEXT_PUBLIC_JWT_SECRET!)
+  const userData = await fetch('api/refresh', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token: raazi_yog_tk }),
+  })
+
+  const user = await userData.json()
   if (!user) {
-    const raazi_yog_tk_refresh = localStorage.getItem('raazi_yog_tk_refresh')
-    if (!raazi_yog_tk_refresh) {
-      return null
-    }
-    const response = await fetch('/api/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token: raazi_yog_tk_refresh }),
-    })
-    if (!response) {
-      return null
-    }
-    const token = (await response.json()).token
-    if (!token) {
-      return null
-    }
-    localStorage.setItem('raazi_yog_tk', token)
-    user = jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!)
-    if (!user) {
-      return null
-    }
+    return null
   }
   return user
   } catch (error) {
