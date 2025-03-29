@@ -76,6 +76,7 @@ model Course{
   to        Time
   days      Day[]
   bookings  Booking[]
+  period    Int? @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }

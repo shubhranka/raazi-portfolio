@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Eye, EyeOff, Mail, Lock, User, Phone, MailIcon, Code, Code2, CodeSquare, Loader2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +15,7 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { raazi_yog_tk, raazi_yog_tk_refresh } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import AuthenticationLoadingPage from '@/components/ui/auth-loading'
+import { toast } from "sonner"
 
 
 
@@ -38,24 +39,26 @@ export default function SignUpComponent() {
   const [verificationLoading, setVerificationLoading] = useState(false)
   const [authenticating, setAuthenticating] = useState(false)
   const [actualAuthenticating, setActualAuthenticating] = useState(false)
+  // const [recaptcha, 
+  const captchaContainer = useRef<HTMLDivElement>(null);
 
-  async function handleCaptchaSubmission(token: string | null) {
-    try {
-      if (token) {
-        await fetch("/api/captcha", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token }),
-        });
-        setIsVerified(true);
-      }
-    } catch (e) {
-      setIsVerified(false);
-    }
-  }
+  // async function handleCaptchaSubmission(token: string | null) {
+  //   try {
+  //     if (token) {
+  //       await fetch("/api/captcha", {
+  //         method: "POST",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ token }),
+  //       });
+  //       setIsVerified(true);
+  //     }
+  //   } catch (e) {
+  //     setIsVerified(false);
+  //   }
+  // }
 
   const handleTabChange = (tab: string) => {
     setLogin(tab === 'login')
@@ -68,17 +71,17 @@ export default function SignUpComponent() {
     setCode('')
   }
 
-  const handleChange = (token: string | null) => {
-    handleCaptchaSubmission(token);
-  };
+  // const handleChange = (token: string | null) => {
+  //   handleCaptchaSubmission(token);
+  // };
 
-  function handleExpired() {
-    setIsVerified(false);
-  }
+  // function handleExpired() {
+  //   setIsVerified(false);
+  // }
 
-  function handleVerify(token: string | null) {
-    handleCaptchaSubmission(token);
-  }
+  // function handleVerify(token: string | null) {
+  //   handleCaptchaSubmission(token);
+  // }
 
 
   const handleSignInSignUp = () => {
@@ -87,28 +90,41 @@ export default function SignUpComponent() {
 
     if(!login && !name){
       setNameError('Name is required')
+      setLoading(false)
       return
     }
+    setNameError('')
     if(!login && !email){
       setEmailError('Email is required')
+      setLoading(false)
       return
     }
-    if(!login && !number){
+    setEmailError('')
+    if(!number){
       setNumberError('Phone number is required')
+      setLoading(false)
       return
     }
+    setNumberError('')
+
+    const divElement = document.createElement('div');
+    divElement.id = 'recaptcha-container-1';
+    captchaContainer.current!.innerHTML = '';
+    captchaContainer.current?.appendChild(divElement);
     
-    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+
+    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container-1', {
       'size': 'invisible',
       'callback': (value: any) => {
         // reCAPTCHA solved, allow signInWithPhoneNumber.
         // onSignInSubmit(value);
+        
       }
     });
     if (!verificationBox) {
 
       setVerificationLoading(true)
-      signInWithPhoneNumber(auth, `+91${number}`, recaptchaVerifier).then((confirmationResult: any) => {
+      signInWithPhoneNumber(auth, `+91${number}`, recaptchaVerifier!).then((confirmationResult: any) => {
         // SMS sent. Confirm the verification process by the user.
         // onSignInSubmit(confirmationResult);
         setVerificationBox(true);
@@ -119,6 +135,8 @@ export default function SignUpComponent() {
         console.log(error);
         if (error.code === 'auth/invalid-phone-number') {
           setNumberError('Invalid phone number')
+          setLoading(false)
+          
         }
         setVerificationLoading(false)
       })
@@ -135,7 +153,7 @@ export default function SignUpComponent() {
           body: login ? JSON.stringify({ token: result.user.accessToken }) : JSON.stringify({ token: result.user.accessToken, name, email }),
         }).then(async (response) => {
           setActualAuthenticating(true)
-          if (response.ok) {
+          if (response.status === 200) {
             const data = await response.json();
             if ((data as any)?.token) {
               localStorage.setItem(raazi_yog_tk, (data as any)?.token);
@@ -143,20 +161,37 @@ export default function SignUpComponent() {
               if (router)
                 router.push("/dashboard");
             }
+          }else{
+            setLogin(false);
+            setActualAuthenticating(false);
+            setVerificationBox(false);
+            setAuthenticating(false)
+            setCode('')
+            toast.error("Please register")
           }
           setAuthenticating(false)
           setLoading(false)
-        });
-      }).catch((error: any) => {
-        setAuthenticating(false)
-        console.log(error);
-        setLoading(false)
+        }).catch((error: any) => {
+          setLogin(false);
+          setAuthenticating(false)
+          console.log(error);
+          setActualAuthenticating(false);
+          setLoading(false)
+          
+        })
       })
     }
   }
   if (actualAuthenticating) {
     return <AuthenticationLoadingPage/>
   }
+  function handleKeyDown(event: any): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSignInSignUp();
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-teal-100 to-teal-200 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm shadow-xl">
@@ -176,7 +211,7 @@ export default function SignUpComponent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full" onValueChange={handleTabChange}>
+          <Tabs defaultValue="login" className="w-full" onValueChange={handleTabChange} value={login ? 'login' : 'register'}>
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="login"> Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
@@ -187,9 +222,10 @@ export default function SignUpComponent() {
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-teal-700">Phone</Label>
                     <div className="relative">
-                      <Input id="phone" placeholder="Enter your phone" type="phone" className="pl-10" onChange={(e) => setNumber(e.target.value)} value={number}/>
+                      <Input id="phone" placeholder="Enter your phone" type="phone" className="pl-10" onChange={(e) => setNumber(e.target.value)} value={number} onKeyDown={handleKeyDown}/>
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 h-4 w-4" />
                     </div>
+                    {numberError && <p className="text-sm text-red-500">{numberError}</p>}
                   </div>
                   {verificationBox && <div className="space-y-2">
                     <div className="relative">
@@ -255,7 +291,7 @@ export default function SignUpComponent() {
           </Tabs>
         </CardContent>
         <CardFooter>
-          <div id='recaptcha-container'></div>
+          <div ref={captchaContainer} id='recaptcha-container'></div>
           <Button id='sign-in-button' className="w-full bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSignInSignUp}>
             {/* The button text will change based on the active tab */}
             {/* <Button value="login">Log In</Button>
@@ -263,9 +299,6 @@ export default function SignUpComponent() {
             {login ? "Log In" : "Sign Up"}
           </Button>
         </CardFooter>
-        <div className="text-center pb-4">
-          <a href="#" className="text-sm text-teal-600 hover:underline">Forgot password?</a>
-        </div>
       </Card>
     </div>
   )

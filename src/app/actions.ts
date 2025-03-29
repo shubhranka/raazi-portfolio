@@ -38,7 +38,7 @@ export function handleCost(weekdays: number, weekends: number, sadhaks: number) 
 
 // }
 
-export async function createGoogleMeetEvent({ email, days, from, to }: { email: string, days: Day[], from: Time, to: Time }) {
+export async function createGoogleMeetEvent({ email, days, from, to, period=1 }: { email: string, days: Day[], from: Time, to: Time, period?: number }) {
     
     const dayArray: Day[] = [Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY, Day.SATURDAY, Day.SUNDAY];
     try {
@@ -98,7 +98,7 @@ export async function createGoogleMeetEvent({ email, days, from, to }: { email: 
                 },
             },
             recurrence: 
-          [`RRULE:FREQ=WEEKLY;BYDAY=${days.map(day => day[0] + day[1]).join(',')};BYHOUR=${from.hour};BYMINUTE=${from.minute};COUNT=4`]
+          [`RRULE:FREQ=WEEKLY;BYDAY=${days.map(day => day[0] + day[1]).join(',')};BYHOUR=${from.hour};BYMINUTE=${from.minute};COUNT=${period*4}`]
 
         };
         const { data } = await axios.post(

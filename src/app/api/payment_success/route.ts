@@ -126,7 +126,8 @@ export async function POST(req: Request) {
           email: sadhak!.email,
           days: course!.days,
           from: course!.from,
-          to: course!.to
+          to: course!.to,
+          period: course?.period || 1
         });
         // Send Welcome Email
         await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink);
