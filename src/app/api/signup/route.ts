@@ -8,9 +8,9 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
     const body = await req.json();
-    const { token, name, email } = body;
+    const { token } = body;
 
-    if (!token || !name || !email) {
+    if (!token) {
         return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
     try {
@@ -24,36 +24,36 @@ export async function POST(req: Request) {
             body: JSON.stringify({
                 idToken: token
             })
-        })
-            .then(response => response.json())
-            .then(data => {
-                return data;
-            })
-        const existingUser = await prisma.sadhak.findFirst({
+        });
+        const data = await response.json();
+        let user = await prisma.sadhak.findFirst({
             where: {
                 OR: [
-                    { email },
-                    { number: response.users[0].phoneNumber }
+                    { email: data.users[0].email },
                 ]
             }
         })
 
-        if (existingUser) {
-            return NextResponse.json({ message: 'User already exists' }, { status: 409 });
+        if (!user) {
+            user = await prisma.sadhak.create({
+                data: {
+                    email: data.users[0].email,
+                    name: data.users[0].displayName,
+                }
+            })
         }
-        const user = await prisma.sadhak.create({
-            data: {
-                email,
-                name,
-                number: response.users[0].phoneNumber
+
+        const bookings = await prisma.booking.findMany({
+            where: {
+                sadhakId: user.id
             }
         })
+
+        const courseIds = bookings.map((booking) => booking.courseId);
         
-        const jwttoken = jwt.sign({ name, email, number: response.users[0].phoneNumber }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+        const jwttoken = jwt.sign({ name: data.users[0].displayName, email: data.users[0].email, bookedCourses: courseIds }, process.env.JWT_SECRET!, { expiresIn: '1d' });
 
-        const refreshToken = jwt.sign({ name, email, number: response.users[0].phoneNumber }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '2d' });
-
-        return NextResponse.json({ token: jwttoken, refreshToken }, { status: 200 });
+        return NextResponse.json({ token: jwttoken }, { status: 200 });
 
     } catch (error) {
         console.error('Error verifying token:', error);
