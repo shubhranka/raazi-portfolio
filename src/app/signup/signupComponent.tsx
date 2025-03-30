@@ -10,15 +10,18 @@ import { raazi_yog_tk } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import AuthenticationLoadingPage from '@/components/ui/auth-loading'
 import { toast } from "sonner"
+import AskNumberComponent from '@/components/ask_number'
 
 export default function SignUpComponent() {
   const [loading, setLoading] = useState(false);
   const [actualAuthenticating, setActualAuthenticating] = useState(false)
+  const [askNumberData, setAskNumberData] = useState({accessToken: ""})
   const router = useRouter()
 
   const googleProvider = new GoogleAuthProvider();
   googleProvider.addScope('email')
   googleProvider.addScope('profile')
+  googleProvider.addScope('phone')
 
   const handleSignIn = async () => {
     setLoading(true)
@@ -36,6 +39,10 @@ export default function SignUpComponent() {
         body: JSON.stringify({ token: accessToken }),
       });
       const tokenData = await tokenResponse.json();
+      if(tokenData.requirePhone){
+        setAskNumberData({accessToken})
+        return
+      }
       if (tokenData.token) {
         localStorage.setItem(raazi_yog_tk, tokenData.token);
         router.push("/dashboard");
@@ -46,6 +53,11 @@ export default function SignUpComponent() {
       setActualAuthenticating(false)
       setLoading(false)
     }
+  }
+
+
+  if (askNumberData.accessToken) {
+    return <AskNumberComponent googleToken={askNumberData.accessToken}/>
   }
 
   if (actualAuthenticating) {

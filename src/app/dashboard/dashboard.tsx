@@ -149,7 +149,6 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
 
   function handleLogout(): void {
     localStorage.removeItem('raazi_yog_tk')
-    localStorage.removeItem('raazi_yog_tk_refresh')
     window.location.href = '/signup'
   }
 
@@ -224,6 +223,31 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
                 <Button className="w-full bg-teal-700 ">Join Class</Button>
               </CardFooter>
             </Card> */}
+            {bookedCourses.length === 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>No Classes Booked</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-lg font-semibold text-teal-800">
+                    Please book a class to get started.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            {bookedCoursesDetails.length === 0 && bookedCourses.length != 0 && (
+              // Loading
+              <Card>
+                <CardHeader>
+                  <CardTitle>Loading...</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-lg font-semibold text-teal-800">
+                    Loading...
+                  </p>
+                </CardContent>
+              </Card>
+            )}
             {bookedCoursesDetails.map((course : any) => (
               <Card key={course?.id}>
                 <CardHeader>

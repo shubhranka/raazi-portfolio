@@ -58,9 +58,6 @@ export async function createGoogleMeetEvent({ email, days, from, to, period=1 }:
             startDay.setDate(startDay.getDate() + 1);
         }
 
-
-        console.log(from,to,startDay);
-
         const startDateTime = new Date(startDay);
         startDateTime.setHours(Number(from.hour), Number(from.minute), 0, 0);
 

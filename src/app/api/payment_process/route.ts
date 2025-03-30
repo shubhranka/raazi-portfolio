@@ -16,7 +16,7 @@ async function getPaymentsLink(courseId: string, phone: string) {
     }
     const sadhak = await prisma.sadhak.findFirst({
         where: {
-            number: phone
+            phone
         }
     });
     if (!sadhak) {

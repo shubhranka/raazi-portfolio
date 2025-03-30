@@ -7,7 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const raazi_yog_tk = 'raazi_yog_tk'
-export const raazi_yog_tk_refresh = 'raazi_yog_tk_refresh'
 
 export async function checkToken() {
   try{
@@ -15,7 +14,7 @@ export async function checkToken() {
   if (!raazi_yog_tk) {
     return null
   }
-  const userData = await fetch('api/refresh', {
+  const userData = await fetch('api/signin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -30,7 +29,6 @@ export async function checkToken() {
   return user
   } catch (error) {
     localStorage.removeItem('raazi_yog_tk')
-    localStorage.removeItem('raazi_yog_tk_refresh')
     return null
   }
 }

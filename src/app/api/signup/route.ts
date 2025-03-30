@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
     const body = await req.json();
-    const { token } = body;
+    const { token, phone } = body;
 
     if (!token) {
         return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -33,12 +33,16 @@ export async function POST(req: Request) {
                 ]
             }
         })
-
         if (!user) {
+            if(!data.users[0].phoneNumber && !phone) {
+                return NextResponse.json({ message: 'Missing phone number', requirePhone: true }, { status: 400 });
+            }
+            const phoneNumber = data.users[0].phoneNumber || phone;
             user = await prisma.sadhak.create({
                 data: {
                     email: data.users[0].email,
                     name: data.users[0].displayName,
+                    phone: phoneNumber
                 }
             })
         }
@@ -51,7 +55,7 @@ export async function POST(req: Request) {
 
         const courseIds = bookings.map((booking) => booking.courseId);
         
-        const jwttoken = jwt.sign({ name: data.users[0].displayName, email: data.users[0].email, bookedCourses: courseIds }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+        const jwttoken = jwt.sign({ name: data.users[0].displayName, email: data.users[0].email, bookedCourses: courseIds, phone: user.phone }, process.env.JWT_SECRET!, { expiresIn: '1d' });
 
         return NextResponse.json({ token: jwttoken }, { status: 200 });
 

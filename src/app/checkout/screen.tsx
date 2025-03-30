@@ -11,7 +11,7 @@ export default function CheckoutConfirmationPage({ course, user }: { course: any
   
     const checkoutData = {
     fullName: user?.name || "",
-    phoneNumber: user?.number,
+    phoneNumber: user?.phone,
     email: user?.email,
     courseName: course?.name || "",
     courseFees: course?.price || 0

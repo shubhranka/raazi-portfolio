@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PaymentFailed } from "./payment_failed"
 import { createGoogleMeetEvent } from "../actions"
 import PaymentNotFound from "./payment_error"
-import { raazi_yog_tk, raazi_yog_tk_refresh } from "@/lib/utils"
+import { raazi_yog_tk } from "@/lib/utils"
 const prisma = new PrismaClient()
 
 
@@ -56,7 +56,6 @@ export default function CallbackPage() {
         })
         const tokenResponse = await token.json()
         localStorage.setItem(raazi_yog_tk, tokenResponse.token)
-        localStorage.setItem(raazi_yog_tk_refresh, tokenResponse.refreshToken)
         
         setTotalAmount(paymentStatus.amount/100)
         setBookingId(paymentStatus.bookingId)

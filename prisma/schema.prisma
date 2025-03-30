@@ -17,9 +17,9 @@ datasource db {
 model Sadhak {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   name      String    
-  number    String?
   email     String
   bookings  Booking[]
+  phone     String?
   createdAt DateTime @default(now())
 }
 
