@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         where: {
             AND: [
                 { email: user?.email },
-                { number: user?.number }
+                { phone: user?.phone }
             ]
         }
     })
@@ -29,8 +29,8 @@ export async function POST(req: Request) {
     const courseIds = bookedCourses.map((booking) => booking.courseId);
     
 
-    const updatedToken = jwt.sign({ name: user?.name, email: user?.email, number: user?.number, bookedCourses: courseIds }, process.env.JWT_SECRET!, { expiresIn: '1d' });
-    const refreshToken = jwt.sign({ name: user?.name, email: user?.email, number: user?.number, bookedCourses: courseIds }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '2d' });
+    const updatedToken = jwt.sign({ name: user?.name, email: user?.email, phone: user?.phone, bookedCourses: courseIds }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+    const refreshToken = jwt.sign({ name: user?.name, email: user?.email, phone: user?.phone, bookedCourses: courseIds }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '2d' });
     
     return NextResponse.json({ token: updatedToken, refreshToken }, { status: 200 });
 }
