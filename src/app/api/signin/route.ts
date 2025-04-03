@@ -20,6 +20,6 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error('Error verifying token:', error);
-        return NextResponse.json({ error: 'Invalid token.' }, { status: 500 });
+        return NextResponse.json({ error: 'Invalid token.' }, { status: 400 });
     }
 }

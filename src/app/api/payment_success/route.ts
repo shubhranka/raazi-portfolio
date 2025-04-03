@@ -130,7 +130,7 @@ export async function POST(req: Request) {
           period: course?.period || 1
         });
         // Send Welcome Email
-        await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink);
+        await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink, course!.from);
         // and whatsapp
         // Verification succeeded
 

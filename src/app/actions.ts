@@ -117,7 +117,7 @@ export async function createGoogleMeetEvent({ email, days, from, to, period=1 }:
     }
 }
 
-export async function sendWelcomeEmail (email : string, name:string, meetingLink:string) {
+export async function sendWelcomeEmail (email : string, name:string, meetingLink:string, from: Time) {
     try {
 
         const token = await getAccessToken();
@@ -192,7 +192,7 @@ export async function sendWelcomeEmail (email : string, name:string, meetingLink
                 <li>A supportive and inspiring environment, whether you're a beginner or an experienced practitioner.</li>
             </ul>
             <p>Your first session is scheduled for:</p>
-            <p>Date: 2024-11-07<br>Time: 10:00 AM IST<br>Location: Online (Google Meet link: ${meetingLink})</p>
+            <p>Date: 2024-11-07<br>Time: ${from.hour}:${from.minute} AM IST<br>Location: Online (Google Meet link: ${meetingLink})</p>
             <p>Please make sure to join the session on time and have a comfortable space ready for your practice. If you have any questions or need further assistance, feel free to reach out to us at founder@raaziyog.com or +91 93993 28872.</p>
             <p>We look forward to seeing you in class and supporting you on your yoga journey!</p>
         </div>

@@ -13,7 +13,7 @@ export default function Page() {
   useEffect(() => {
     const func = async () => {
       const user = await checkToken()
-      if (!user) {
+      if (!user?.name) {
         router.push('/signup')
       }
       setLoading(false)
@@ -32,7 +32,7 @@ export default function Page() {
     );
   }
 
-  if (!user) {
+  if (!user?.name) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">

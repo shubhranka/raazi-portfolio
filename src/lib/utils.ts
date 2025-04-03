@@ -23,7 +23,8 @@ export async function checkToken() {
   })
 
   const user = await userData.json()
-  if (!user) {
+  if (!user || user.error) {
+    localStorage.removeItem('raazi_yog_tk')
     return null
   }
   return user
