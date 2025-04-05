@@ -116,7 +116,7 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
   const longestSession = Math.max(...weeklyProgress.map((day) => day.minutes));
   const totalSessions = weeklyProgress.filter((day) => day.minutes > 0).length;
   const firstLettersOfName = user.split(" ").map(name => name[0].toUpperCase()).join("");
-  const bookedCoursesTimers = bookedCoursesDetails.map((course: any) => Number(course.nextClass.getTime() - new Date().getTime()))
+  // const bookedCoursesTimers = bookedCoursesDetails.map((course: any) => Number(course.nextClass.getTime() - new Date().getTime()))
 
   useEffect(() => {
     // Read url, if url has #courses, then set activeTab to "courses"
@@ -251,14 +251,9 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
                     </div>
                   </div>
                 </CardContent>
-                {bookedCoursesTimers[index] <= 1000 * 60 * 5 && <CardFooter>
+                  <CardFooter>
                   <Button onClick={() => {open(course.meetingLink)}} className="w-full bg-teal-700 ">Join Class</Button>
-                </CardFooter>}
-                {bookedCoursesTimers[index] > 1000 * 60 * 5 && <CardFooter>
-                  <p className="text-lg font-semibold text-teal-800 text-center w-full">
-                    Class has not started
-                  </p>
-                </CardFooter>}
+                </CardFooter>
               </Card>
             ))}
            

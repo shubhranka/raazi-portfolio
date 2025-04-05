@@ -236,8 +236,8 @@ const main = async () => {
       name: "Regular"
     }
   });
-  await addAttendeesToEvent(course.eventId, ["shubhrankavarma@gmail.com"]);
-  // await removeAttendeesFromEvent(course.eventId, ["shubhrankavarma@gmail.com"]);
+  // await addAttendeesToEvent(course.eventId, ["shubhrankavarma@gmail.com"]);
+  await removeAttendeesFromEvent(course.eventId, ["shubhrankavarma@gmail.com"]);
   
 };
 
