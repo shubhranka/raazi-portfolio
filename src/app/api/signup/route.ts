@@ -49,7 +49,8 @@ export async function POST(req: Request) {
 
         const bookings = await prisma.booking.findMany({
             where: {
-                sadhakId: user.id
+                sadhakId: user.id,
+                status: "PAID"
             }
         })
 
