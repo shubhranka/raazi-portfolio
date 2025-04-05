@@ -5,6 +5,7 @@ import React, { Suspense, useEffect, useState } from "react"
 import { checkToken } from "@/lib/utils"
 import { LoaderPinwheel } from "lucide-react";
 import CheckoutConfirmationPage from "./screen";
+import LogoLoader from "@/components/logo-loader";
 
 export default function Page() {
     return <Suspense fallback={<div>Loading...</div>}>
@@ -37,12 +38,7 @@ function SusedPage() {
     }, [])
     if (loading) {
       return (
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <LoaderPinwheel className="h-12 w-12 animate-spin text-gray-700 mx-auto" />
-            <p className="mt-4 text-lg font-medium text-gray-700">Loading...</p>
-          </div>
-        </div>
+        <LogoLoader />
       );
     }
     return <CheckoutConfirmationPage course={course} user={user} />

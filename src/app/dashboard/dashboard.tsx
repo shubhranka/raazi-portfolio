@@ -372,7 +372,7 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
                       <div className="flex flex-row items-center text-teal-800 text-xl h-10">
                         <IndianRupee className="mr-1 w-5" />
                         <div className="font-bold">{course.price}</div>
-                        <div className="text-teal-600 font-semibold ml-1 text-sm flex items-center bg-teal-50 p-2 rounded-md"> <span>{course?.period || 1} month{course?.period === 1 ? "" : "s"}</span></div>
+                        <div className="text-teal-600 font-semibold ml-1 text-sm flex items-center bg-teal-50 p-2 rounded-md"> <span>{(course?.period || 1)} month{(course?.period || 1) > 1 ? "s" : ""}</span></div>
                       </div>
                     </div>
                   </CardContent>
