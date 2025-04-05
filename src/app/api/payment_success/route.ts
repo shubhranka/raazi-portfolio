@@ -121,6 +121,7 @@ export async function POST(req: Request) {
             id: booking!.courseId,
           },
         });
+        const eventId = course?.eventId;
         const courseLink = course?.meetingLink;
         // Create a gmeet link
         // const gmeetLink = await createGoogleMeetEvent({
@@ -131,7 +132,7 @@ export async function POST(req: Request) {
         //   period: course?.period || 1
         // });
         // Send Welcome Email
-        await addAttendeesToEvent(courseLink!, [sadhak!.email]);
+        await addAttendeesToEvent(eventId!, [sadhak!.email]);
         await sendWelcomeEmail(sadhak!.email, sadhak!.name, courseLink!, course!.from);
         // and whatsapp
         // Verification succeeded
