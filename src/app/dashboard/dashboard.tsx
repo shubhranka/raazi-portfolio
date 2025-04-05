@@ -98,7 +98,7 @@ interface DashboardProps {
   bookedCourses: string[]
 }
 
-const daysArray = [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
+const daysArray = [ "SUNDAY","MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"]
 
 export default function DashboardPage({ user, email, bookedCourses }: DashboardProps) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -116,6 +116,7 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
   const longestSession = Math.max(...weeklyProgress.map((day) => day.minutes));
   const totalSessions = weeklyProgress.filter((day) => day.minutes > 0).length;
   const firstLettersOfName = user.split(" ").map(name => name[0].toUpperCase()).join("");
+  const bookedCoursesTimers = bookedCoursesDetails.map((course: any) => Number(course.nextClass.getTime() - new Date().getTime()))
 
   useEffect(() => {
     // Read url, if url has #courses, then set activeTab to "courses"
@@ -136,10 +137,13 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
       });
       bookedCoursesDetails = bookedCoursesDetails.map((course) => {
         const nextClass = new Date();
-        while(course?.days.includes(daysArray[nextClass.getDay()])) {
+        nextClass.setHours(Number(course.from.hour), Number(course.from.minute), 0, 0);
+        if (nextClass < new Date()) {
           nextClass.setDate(nextClass.getDate() + 1);
         }
-        nextClass.setHours(Number(course.from.hour), Number(course.from.minute), 0, 0);
+        while(!course?.days.includes(daysArray[nextClass.getDay()])) {
+          nextClass.setDate(nextClass.getDate() + 1);
+        }
         return { ...course, nextClass };
       })
       setBookedCoursesDetails(bookedCoursesDetails);
@@ -157,13 +161,15 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
       <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
         <header className="flex flex-col md:flex-row justify-between items-center bg-white rounded-lg shadow-md p-4 space-y-4 md:space-y-0">
           <div className="flex items-center space-x-4">
-            <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg"
-              alt="RaaziYog Logo"
-              width={50}
-              height={50}
-              className="rounded-full"
-            />
+            <Link href="/">
+              <Image
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240413-WA0000-KEoVB2XXLvTEgjQS8oPbChADBFa2Mf.jpg"
+                alt="RaaziYog Logo"
+                width={50}
+                height={50}
+                className="rounded-full"
+              />
+            </Link>
             <h1 className="text-2xl md:text-3xl font-bold text-teal-800">
               Your Yoga Journey
             </h1>
@@ -202,27 +208,6 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            {/* <Card>
-              <CardHeader>
-                <CardTitle>Next Class</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-4">
-                  <CalendarDays className="h-10 w-10 text-teal-500" />
-                  <div>
-                    <p className="text-lg font-semibold text-teal-800">
-                      Hatha Yoga Fundamentals
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Wednesday, Nov 20 • 9:00 AM
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full bg-teal-700 ">Join Class</Button>
-              </CardFooter>
-            </Card> */}
             {bookedCourses.length === 0 && (
               <Card>
                 <CardHeader>
@@ -248,7 +233,7 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
                 </CardContent>
               </Card>
             )}
-            {bookedCoursesDetails.map((course : any) => (
+            {bookedCoursesDetails.map((course : any, index: number) => (
               <Card key={course?.id}>
                 <CardHeader>
                   <CardTitle>{course?.name}</CardTitle>
@@ -261,15 +246,19 @@ export default function DashboardPage({ user, email, bookedCourses }: DashboardP
                         {course?.name}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {/* Do GMT + 5:30 */}
-                        {(course?.nextClass as Date).toString().split('GMT')[0] }
+                        {(course?.nextClass as Date).toLocaleString('en-US', {month: 'long',day: 'numeric', weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: true })}
                       </p>
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Button className="w-full bg-teal-700 ">Join Class</Button>
-                </CardFooter>
+                {bookedCoursesTimers[index] <= 1000 * 60 * 5 && <CardFooter>
+                  <Button onClick={() => {open(course.meetingLink)}} className="w-full bg-teal-700 ">Join Class</Button>
+                </CardFooter>}
+                {bookedCoursesTimers[index] > 1000 * 60 * 5 && <CardFooter>
+                  <p className="text-lg font-semibold text-teal-800 text-center w-full">
+                    Class has not started
+                  </p>
+                </CardFooter>}
               </Card>
             ))}
            

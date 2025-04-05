@@ -4,6 +4,7 @@ import { checkToken } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import { LoaderPinwheel } from "lucide-react";
 import DashboardPage from "./dashboard";
+import LogoLoader from "@/components/logo-loader";
 
 export default function Page() {
   const router = useRouter()
@@ -23,12 +24,7 @@ export default function Page() {
   }, [])
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <LoaderPinwheel className="h-12 w-12 animate-spin text-gray-700 mx-auto" />
-          <p className="mt-4 text-lg font-medium text-gray-700">Loading...</p>
-        </div>
-      </div>
+      <LogoLoader />
     );
   }
 

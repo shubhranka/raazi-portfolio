@@ -113,7 +113,7 @@ export async function createGoogleMeetEvent({ email, days, from, to, period=1 }:
     } catch (error) {
         console.error("Error creating event:", error);
     } finally {
-        
+
     }
 }
 
@@ -232,23 +232,23 @@ export async function addAttendeesToEvent(eventId: string, newEmails: string[]) 
     try {
         const token = await getAccessToken();
 
-        // 1. Fetch the existing event details
-        const eventUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`;
-        const { data: eventData } = await axios.get(eventUrl, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        // // 1. Fetch the existing event details
+        // const eventUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`;
+        // const { data: eventData } = await axios.get(eventUrl, {
+        //     headers: {
+        //         Authorization: `Bearer ${token}`,
+        //     },
+        // });
 
         // 2. Add new attendees to the existing list of attendees
         const updatedAttendees = [
-            ...eventData.attendees,  // Existing attendees
-            ...newEmails.map((email) => ({ email }))  // New attendees
+            // ...eventData.attendees,  // Existing attendees
+            ...newEmails.map((email) => ({ email, responseStatus: "accepted" }))  // New attendees
         ];
 
         // 3. Update the event with the new list of attendees
         const updatedEvent = {
-            ...eventData,
+            // ...eventData,
             attendees: updatedAttendees,
         };
 
@@ -260,7 +260,7 @@ export async function addAttendeesToEvent(eventId: string, newEmails: string[]) 
             },
         });
 
-        return response.data.hangoutLink; // The updated meeting link
+        return response.data.hangoutLink;
     } catch (error) {
         console.error("Error adding attendees to event:", error);
     }

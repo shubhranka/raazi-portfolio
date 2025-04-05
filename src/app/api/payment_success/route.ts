@@ -121,16 +121,18 @@ export async function POST(req: Request) {
             id: booking!.courseId,
           },
         });
+        const courseLink = course?.meetingLink;
         // Create a gmeet link
-        const gmeetLink = await createGoogleMeetEvent({
-          email: sadhak!.email,
-          days: course!.days,
-          from: course!.from,
-          to: course!.to,
-          period: course?.period || 1
-        });
+        // const gmeetLink = await createGoogleMeetEvent({
+        //   email: sadhak!.email,
+        //   days: course!.days,
+        //   from: course!.from,
+        //   to: course!.to,
+        //   period: course?.period || 1
+        // });
         // Send Welcome Email
-        await sendWelcomeEmail(sadhak!.email, sadhak!.name, gmeetLink, course!.from);
+        await addAttendeesToEvent(courseLink!, [sadhak!.email]);
+        await sendWelcomeEmail(sadhak!.email, sadhak!.name, courseLink!, course!.from);
         // and whatsapp
         // Verification succeeded
 

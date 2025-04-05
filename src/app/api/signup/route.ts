@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
         const courseIds = bookings.map((booking) => booking.courseId);
         
-        const jwttoken = jwt.sign({ name: data.users[0].displayName, email: data.users[0].email, bookedCourses: courseIds, phone: user.phone }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+        const jwttoken = jwt.sign({ name: data.users[0].displayName, email: data.users[0].email, bookedCourses: courseIds, phone: user.phone }, process.env.JWT_SECRET!, { expiresIn: '6h' });
 
         return NextResponse.json({ token: jwttoken }, { status: 200 });
 

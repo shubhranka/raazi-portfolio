@@ -31,6 +31,7 @@ model Booking {
   courseId      String    @db.ObjectId
   payment_link  String?
   status        String
+  classesDone   Int? @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
@@ -79,6 +80,8 @@ model Course{
   period    Int? @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+  eventId   String?
+  meetingLink String?
 }
 
 type Time {
