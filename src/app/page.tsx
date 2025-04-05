@@ -93,7 +93,7 @@ export default function ModernYogaTeacherPortfolio() {
               <div className="md:w-1/2">
                 <div className="relative">
                   <Image
-                    src="/cropped.jpg"
+                    src="https://cht5tbydosgkcqlb.public.blob.vercel-storage.com/ProfileDP-MJw5IqKTt9kOuBt5JB1aibUZ9rpPWE"
                     alt="Yoga teacher in a pose"
                     className="rounded-full mx-auto shadow-2xl"
                     width={500}

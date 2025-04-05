@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ['hebbkx1anhila5yf.public.blob.vercel-storage.com'],
+        domains: ['hebbkx1anhila5yf.public.blob.vercel-storage.com', "cht5tbydosgkcqlb.public.blob.vercel-storage.com"],
       },
       env: {
         CAPTCHA_SITE_KEY: process.env.CAPTCHA_SITE_KEY,
