@@ -38,6 +38,33 @@ export function handleCost(weekdays: number, weekends: number, sadhaks: number) 
 
 // }
 
+export async function removeAttendeesFromEvent(eventId: string, newEmails: string[]) {
+    try {
+      const token = await getAccessToken();
+      const eventUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`;
+      const { data: eventData } = await axios.get(eventUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const updatedAttendees = eventData.attendees.filter(
+        (attendee: { email: string }) => !newEmails.includes(attendee.email)
+      );
+      const updatedEvent = {
+        attendees: updatedAttendees,
+      };
+      const response = await axios.patch(eventUrl, updatedEvent, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(`Attendees removed successfully from event`);
+    } catch (error) {
+      console.error("Error removing attendees from event:", error);
+    }
+  }
+
 export async function createGoogleMeetEvent({ email, days, from, to, period=1 }: { email: string, days: Day[], from: Time, to: Time, period?: number }) {
     
     const dayArray: Day[] = [Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY, Day.SATURDAY, Day.SUNDAY];
